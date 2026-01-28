@@ -27,7 +27,7 @@ A server-side plugin for Hytale that allows players to customize their display n
 
 ## Installation
 
-1. Place `NickNameChanger-0.0.2.jar` into `Hytale\UserData\Mods`
+1. Place `NickNameChanger-*.*.*.jar` into `Hytale\UserData\Mods`
 2. Launch the game and open world settings
 3. Enable the mod in the Mods section
 4. Load the world
@@ -76,7 +76,7 @@ A server-side plugin for Hytale that allows players to customize their display n
 
 ## Установка
 
-1. Поместите `NickNameChanger-0.0.2.jar` в папку `Hytale\UserData\Mods`
+1. Поместите `NickNameChanger-*.*.*.jar` в папку `Hytale\UserData\Mods`
 2. Запустите игру и откройте настройки мира
 3. Включите мод в разделе Mods
 4. Загрузите мир
