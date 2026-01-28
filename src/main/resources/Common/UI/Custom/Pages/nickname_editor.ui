@@ -1,7 +1,7 @@
 $C = "../Common.ui";
 
 @SectionLabelStyle = LabelStyle(
-  FontSize: 14,
+  FontSize: 12,
   TextColor: #93844c,
   RenderBold: true,
   RenderUppercase: true
@@ -14,372 +14,389 @@ $C = "../Common.ui";
   VerticalAlignment: Center
 );
 
+// Color preset button styles
+@RedLabel = LabelStyle(FontSize: 12, TextColor: #FF5555, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@RedBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @RedLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @RedLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @RedLabel)
+);
+
+@OrangeLabel = LabelStyle(FontSize: 12, TextColor: #FFAA00, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@OrangeBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @OrangeLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @OrangeLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @OrangeLabel)
+);
+
+@YellowLabel = LabelStyle(FontSize: 12, TextColor: #FFFF55, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@YellowBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @YellowLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @YellowLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @YellowLabel)
+);
+
+@GreenLabel = LabelStyle(FontSize: 12, TextColor: #55FF55, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@GreenBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GreenLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GreenLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GreenLabel)
+);
+
+@AquaLabel = LabelStyle(FontSize: 12, TextColor: #55FFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@AquaBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @AquaLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @AquaLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @AquaLabel)
+);
+
+@BlueLabel = LabelStyle(FontSize: 12, TextColor: #5555FF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@BlueBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @BlueLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @BlueLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @BlueLabel)
+);
+
+@PurpleLabel = LabelStyle(FontSize: 12, TextColor: #AA55FF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@PurpleBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @PurpleLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @PurpleLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @PurpleLabel)
+);
+
+@PinkLabel = LabelStyle(FontSize: 12, TextColor: #FF55FF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@PinkBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @PinkLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @PinkLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @PinkLabel)
+);
+
+@WhiteLabel = LabelStyle(FontSize: 12, TextColor: #FFFFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@WhiteBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @WhiteLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @WhiteLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @WhiteLabel)
+);
+
+@GrayLabel = LabelStyle(FontSize: 12, TextColor: #AAAAAA, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@GrayBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GrayLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GrayLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GrayLabel)
+);
+
+@GoldLabel = LabelStyle(FontSize: 12, TextColor: #FFD700, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@GoldBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GoldLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GoldLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GoldLabel)
+);
+
+@NoneLabel = LabelStyle(FontSize: 12, TextColor: #BBBBBB, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+@NoneBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @NoneLabel),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @NoneLabel),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @NoneLabel)
+);
+
+// Gradient preset button styles with gradient text via LabelMaskTexturePath
+@GradLabel = LabelStyle(FontSize: 12, TextColor: #FFFFFF, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center);
+
+@SunsetBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/SunsetGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/SunsetGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/SunsetGradient.png")
+);
+
+@OceanBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/OceanGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/OceanGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/OceanGradient.png")
+);
+
+@FireBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/FireGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/FireGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/FireGradient.png")
+);
+
+@ForestBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/ForestGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/ForestGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/ForestGradient.png")
+);
+
+@VioletBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/VioletGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/VioletGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/VioletGradient.png")
+);
+
+@GoldGradBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/GoldGradGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/GoldGradGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/GoldGradGradient.png")
+);
+
+@IceBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/IceGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/IceGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/IceGradient.png")
+);
+
+@RainbowBtnStyle = TextButtonStyle(
+  Default: (Background: $C.@DefaultSquareButtonDefaultBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/RainbowGradient.png"),
+  Hovered: (Background: $C.@DefaultSquareButtonHoveredBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/RainbowGradient.png"),
+  Pressed: (Background: $C.@DefaultSquareButtonPressedBackground, LabelStyle: @GradLabel, LabelMaskTexturePath: "Gradients/RainbowGradient.png")
+);
+
 $C.@PageOverlay {
 
   $C.@DecoratedContainer {
-    Anchor: (Width: 520, Height: 600);
+    Anchor: (Width: 480, Height: 575);
 
     #Title {
-      $C.@Title {
-        @Text = "Nickname Editor";
+      Label #TitleText {
+        Text: "Nickname Editor";
+        Style: (FontSize: 18, TextColor: #93844c, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center);
+        Anchor: (Top: 0, Left: 0, Right: 0, Bottom: 0);
       }
     }
 
     #Content {
       LayoutMode: Top;
-      Padding: (Left: 20, Right: 20, Top: 10);
+      Padding: (Left: 16, Right: 16, Top: 8);
 
-      // Nickname Input Section
-      Group #InputSection {
-        LayoutMode: Top;
-        Anchor: (Bottom: 8);
-
-        Label {
-          Text: "Nickname";
-          Style: @SectionLabelStyle;
-          Anchor: (Bottom: 4);
-        }
-
-        $C.@TextField #NicknameInput {
-          Anchor: (Height: 34);
-          Style: (FontSize: 15, TextColor: #ffffff(0.9));
-        }
+      // ===== NICKNAME =====
+      Label {
+        Text: %nickname.ui.nickname;
+        Style: @SectionLabelStyle;
+        Anchor: (Bottom: 3);
       }
 
-      // Separator
+      $C.@TextField #NicknameInput {
+        Anchor: (Height: 30, Bottom: 6);
+        Style: (FontSize: 14, TextColor: #ffffff(0.9));
+      }
+
+      // --- Separator ---
+      Group { Anchor: (Height: 1, Bottom: 6); Background: #93844c(0.3); }
+
+      // ===== TEXT STYLES =====
+      Label {
+        Text: %nickname.ui.textStyles;
+        Style: @SectionLabelStyle;
+        Anchor: (Bottom: 3);
+      }
+
       Group {
-        Anchor: (Height: 1, Bottom: 8);
-        Background: #93844c(0.3);
-      }
-
-      // Text Styles Section
-      Group #StylesSection {
-        LayoutMode: Top;
-        Anchor: (Bottom: 8);
-
-        Label {
-          Text: "Text Styles";
-          Style: @SectionLabelStyle;
-          Anchor: (Bottom: 4);
-        }
-
-        Group {
-          LayoutMode: Left;
-
-          $C.@CheckBoxWithLabel #BoldCheckbox {
-            @Text = "Bold";
-            Anchor: (Right: 25);
-          }
-
-          $C.@CheckBoxWithLabel #ItalicCheckbox {
-            @Text = "Italic";
-            Anchor: (Right: 25);
-          }
-
-          $C.@CheckBoxWithLabel #UnderlineCheckbox {
-            @Text = "Underline";
-          }
-        }
-      }
-
-      // Separator
-      Group {
-        Anchor: (Height: 1, Bottom: 8);
-        Background: #93844c(0.3);
-      }
-
-      // Tab Container
-      Group #TabContainer {
-        LayoutMode: Top;
+        LayoutMode: Left;
         Anchor: (Bottom: 6);
 
-        // Tab Bar
-        Group #TabBar {
-          LayoutMode: Left;
-          Anchor: (Height: 36);
-          Background: #1a2a3a(0.5);
-          Padding: (Left: 4, Right: 4, Top: 3, Bottom: 3);
+        $C.@CheckBoxWithLabel #BoldCheckbox {
+          @Text = %nickname.ui.bold;
+          Anchor: (Right: 20);
+        }
 
-          $C.@TextButton #TabColor {
-            Text: "COLOR";
-            Anchor: (Width: 220);
-            Padding: (Top: 5, Bottom: 5);
-          }
+        $C.@CheckBoxWithLabel #ItalicCheckbox {
+          @Text = %nickname.ui.italic;
+          Anchor: (Right: 20);
+        }
 
-          $C.@TextButton #TabGradient {
-            Text: "GRADIENT";
-            Anchor: (Width: 220, Left: 6);
-            Padding: (Top: 5, Bottom: 5);
-          }
+        $C.@CheckBoxWithLabel #UnderlineCheckbox {
+          @Text = %nickname.ui.underline;
         }
       }
 
-      // Single Color Tab Content
+      // --- Separator ---
+      Group { Anchor: (Height: 1, Bottom: 6); Background: #93844c(0.3); }
+
+      // ===== COLOR =====
+      Label {
+        Text: %nickname.ui.color;
+        Style: @SectionLabelStyle;
+        Anchor: (Bottom: 3);
+      }
+
+      // Tab Bar
+      Group #TabBar {
+        LayoutMode: Left;
+        Anchor: (Height: 28, Bottom: 4);
+
+        $C.@TextButton #TabColor {
+          Text: "> COLOR <";
+          Anchor: (Width: 218, Height: 26);
+        }
+
+        $C.@TextButton #TabGradient {
+          Text: "GRADIENT";
+          Anchor: (Width: 218, Height: 26, Left: 4);
+        }
+      }
+
+      // === Single Color Content ===
       Group #SingleColorSection {
         LayoutMode: Top;
-        Anchor: (Bottom: 6);
         Background: #1a2a3a(0.3);
-        Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
+        Padding: (Left: 8, Right: 8, Top: 6, Bottom: 6);
+        Anchor: (Height: 178, Bottom: 4);
 
-        // Color Picker
         ColorPicker #ColorPicker {
-          Anchor: (Height: 100, Bottom: 6);
+          Anchor: (Height: 90, Bottom: 4);
           Style: $C.@DefaultColorPickerStyle;
         }
 
-        // Color Presets Row 1
+        // Row 1
         Group {
           LayoutMode: Left;
-          Anchor: (Height: 28, Bottom: 3);
+          Anchor: (Height: 24, Bottom: 3);
 
-          $C.@TextButton #ColorRed {
-            Text: "Red";
-            Anchor: (Width: 108);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #FF5555;
-          }
-          $C.@TextButton #ColorOrange {
-            Text: "Orange";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #FFAA00;
-          }
-          $C.@TextButton #ColorYellow {
-            Text: "Yellow";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #FFFF55;
-          }
-          $C.@TextButton #ColorGreen {
-            Text: "Green";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #55FF55;
-          }
+          TextButton #ColorRed { Text: %nickname.ui.red; Anchor: (Width: 106, Height: 22); Style: @RedBtnStyle; }
+          TextButton #ColorOrange { Text: %nickname.ui.orange; Anchor: (Width: 106, Height: 22, Left: 3); Style: @OrangeBtnStyle; }
+          TextButton #ColorYellow { Text: %nickname.ui.yellow; Anchor: (Width: 106, Height: 22, Left: 3); Style: @YellowBtnStyle; }
+          TextButton #ColorGreen { Text: %nickname.ui.green; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GreenBtnStyle; }
         }
 
-        // Color Presets Row 2
+        // Row 2
         Group {
           LayoutMode: Left;
-          Anchor: (Height: 28, Bottom: 3);
+          Anchor: (Height: 24, Bottom: 3);
 
-          $C.@TextButton #ColorAqua {
-            Text: "Aqua";
-            Anchor: (Width: 108);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #55FFFF;
-          }
-          $C.@TextButton #ColorBlue {
-            Text: "Blue";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #5555FF;
-          }
-          $C.@TextButton #ColorPurple {
-            Text: "Purple";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #AA55FF;
-          }
-          $C.@TextButton #ColorPink {
-            Text: "Pink";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #FF55FF;
-          }
+          TextButton #ColorAqua { Text: %nickname.ui.aqua; Anchor: (Width: 106, Height: 22); Style: @AquaBtnStyle; }
+          TextButton #ColorBlue { Text: %nickname.ui.blue; Anchor: (Width: 106, Height: 22, Left: 3); Style: @BlueBtnStyle; }
+          TextButton #ColorPurple { Text: %nickname.ui.purple; Anchor: (Width: 106, Height: 22, Left: 3); Style: @PurpleBtnStyle; }
+          TextButton #ColorPink { Text: %nickname.ui.pink; Anchor: (Width: 106, Height: 22, Left: 3); Style: @PinkBtnStyle; }
         }
 
-        // Color Presets Row 3
+        // Row 3
         Group {
           LayoutMode: Left;
-          Anchor: (Height: 28);
+          Anchor: (Height: 24);
 
-          $C.@TextButton #ColorWhite {
-            Text: "White";
-            Anchor: (Width: 108);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #FFFFFF;
-          }
-          $C.@TextButton #ColorGray {
-            Text: "Gray";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #AAAAAA;
-          }
-          $C.@TextButton #ColorGold {
-            Text: "Gold";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #FFD700;
-          }
-          $C.@TextButton #ColorNone {
-            Text: "None";
-            Anchor: (Width: 108, Left: 4);
-            Padding: (Top: 4, Bottom: 4);
-            Background: #333333;
-          }
+          TextButton #ColorWhite { Text: %nickname.ui.white; Anchor: (Width: 106, Height: 22); Style: @WhiteBtnStyle; }
+          TextButton #ColorGray { Text: %nickname.ui.gray; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GrayBtnStyle; }
+          TextButton #ColorGold { Text: %nickname.ui.gold; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GoldBtnStyle; }
+          TextButton #ColorNone { Text: %nickname.ui.none; Anchor: (Width: 106, Height: 22, Left: 3); Style: @NoneBtnStyle; }
         }
       }
 
-      // Gradient Tab Content
+      // === Gradient Content ===
       Group #GradientSection {
         LayoutMode: Top;
-        Anchor: (Bottom: 6);
         Visible: false;
         Background: #1a2a3a(0.3);
-        Padding: (Left: 10, Right: 10, Top: 8, Bottom: 8);
+        Padding: (Left: 8, Right: 8, Top: 6, Bottom: 6);
+        Anchor: (Height: 178, Bottom: 4);
 
-        // Two ColorPickers side by side
+        // Two pickers
         Group {
           LayoutMode: Left;
-          Anchor: (Height: 120, Bottom: 6);
+          Anchor: (Height: 100, Bottom: 4);
 
-          // Start Color
+          // Start
           Group {
             LayoutMode: Top;
-            FlexWeight: 1;
+            Anchor: (Width: 214);
 
             Group {
               LayoutMode: Left;
-              Anchor: (Height: 18, Bottom: 2);
+              Anchor: (Height: 14, Bottom: 2);
 
-              Label {
-                Text: "Start";
-                Style: (FontSize: 11, TextColor: #93844c, RenderUppercase: true);
-              }
-
-              Group #GradColor1Preview {
-                Anchor: (Width: 16, Height: 16, Left: 6);
-                Background: #FF5555;
-              }
+              Label { Text: %nickname.ui.start; Style: (FontSize: 9, TextColor: #93844c, RenderUppercase: true); }
+              Group #GradColor1Preview { Anchor: (Width: 12, Height: 12, Left: 4); Background: #FF5555; }
             }
 
             ColorPicker #GradColorPicker1 {
-              Anchor: (Height: 100);
+              Anchor: (Height: 82);
               Style: $C.@DefaultColorPickerStyle;
             }
           }
 
-          // End Color
+          // End
           Group {
             LayoutMode: Top;
-            FlexWeight: 1;
-            Anchor: (Left: 8);
+            Anchor: (Width: 214, Left: 6);
 
             Group {
               LayoutMode: Left;
-              Anchor: (Height: 18, Bottom: 2);
+              Anchor: (Height: 14, Bottom: 2);
 
-              Label {
-                Text: "End";
-                Style: (FontSize: 11, TextColor: #93844c, RenderUppercase: true);
-              }
-
-              Group #GradColor2Preview {
-                Anchor: (Width: 16, Height: 16, Left: 6);
-                Background: #5555FF;
-              }
+              Label { Text: %nickname.ui.end; Style: (FontSize: 9, TextColor: #93844c, RenderUppercase: true); }
+              Group #GradColor2Preview { Anchor: (Width: 12, Height: 12, Left: 4); Background: #5555FF; }
             }
 
             ColorPicker #GradColorPicker2 {
-              Anchor: (Height: 100);
+              Anchor: (Height: 82);
               Style: $C.@DefaultColorPickerStyle;
             }
           }
         }
 
-        // Gradient Presets
+        // Presets Row 1
         Group {
           LayoutMode: Left;
-          Anchor: (Height: 26);
+          Anchor: (Height: 24, Bottom: 3);
 
-          $C.@TextButton #GradPreset1 {
-            Text: "Sunset";
-            FlexWeight: 1;
-            Padding: (Top: 3, Bottom: 3);
-          }
-          $C.@TextButton #GradPreset2 {
-            Text: "Ocean";
-            FlexWeight: 1;
-            Anchor: (Left: 3);
-            Padding: (Top: 3, Bottom: 3);
-          }
-          $C.@TextButton #GradPreset3 {
-            Text: "Fire";
-            FlexWeight: 1;
-            Anchor: (Left: 3);
-            Padding: (Top: 3, Bottom: 3);
-          }
-          $C.@TextButton #GradPreset4 {
-            Text: "Forest";
-            FlexWeight: 1;
-            Anchor: (Left: 3);
-            Padding: (Top: 3, Bottom: 3);
-          }
+          TextButton #GradPreset1 { Text: %nickname.ui.sunset; Anchor: (Width: 106, Height: 22); Style: @SunsetBtnStyle; }
+          TextButton #GradPreset2 { Text: %nickname.ui.ocean; Anchor: (Width: 106, Height: 22, Left: 3); Style: @OceanBtnStyle; }
+          TextButton #GradPreset3 { Text: %nickname.ui.fire; Anchor: (Width: 106, Height: 22, Left: 3); Style: @FireBtnStyle; }
+          TextButton #GradPreset4 { Text: %nickname.ui.forest; Anchor: (Width: 106, Height: 22, Left: 3); Style: @ForestBtnStyle; }
+        }
+
+        // Presets Row 2
+        Group {
+          LayoutMode: Left;
+          Anchor: (Height: 24);
+
+          TextButton #GradPreset5 { Text: %nickname.ui.violet; Anchor: (Width: 106, Height: 22); Style: @VioletBtnStyle; }
+          TextButton #GradPreset6 { Text: %nickname.ui.gold; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GoldGradBtnStyle; }
+          TextButton #GradPreset7 { Text: %nickname.ui.ice; Anchor: (Width: 106, Height: 22, Left: 3); Style: @IceBtnStyle; }
+          TextButton #GradPreset8 { Text: %nickname.ui.rainbow; Anchor: (Width: 106, Height: 22, Left: 3); Style: @RainbowBtnStyle; }
         }
       }
 
-      // Separator
-      Group {
-        Anchor: (Height: 1, Bottom: 6);
-        Background: #93844c(0.3);
+      // --- Separator ---
+      Group { Anchor: (Height: 1, Bottom: 6); Background: #93844c(0.3); }
+
+      // ===== PREVIEW =====
+      Label {
+        Text: %nickname.ui.preview;
+        Style: @SectionLabelStyle;
+        Anchor: (Bottom: 3);
       }
 
-      // Preview Section
       Group #PreviewSection {
-        LayoutMode: Top;
-        Anchor: (Bottom: 8);
-        Background: #000000(0.3);
-        Padding: (Left: 15, Right: 15, Top: 6, Bottom: 6);
-
-        Group {
-          LayoutMode: Left;
-          Anchor: (Bottom: 2);
-
-          Label {
-            Text: "Preview";
-            Style: (FontSize: 11, TextColor: #93844c, RenderUppercase: true);
-          }
-
-          Label #PreviewStyles {
-            Text: "";
-            Style: (FontSize: 10, TextColor: #666666);
-            Anchor: (Left: 10);
-          }
-        }
+        Anchor: (Height: 44, Bottom: 8);
+        Background: #000000(0.4);
 
         Label #PreviewText {
           Text: "YourNickname";
           Style: @PreviewLabelStyle;
-          Anchor: (Height: 30);
+          Anchor: (Top: 0, Left: 0, Right: 0, Bottom: 0);
         }
       }
 
-      // Spacer
-      Label { FlexWeight: 1; }
+      // --- Separator ---
+      Group { Anchor: (Height: 1, Bottom: 8); Background: #93844c(0.3); }
 
-      // Action Buttons - centered
+      // ===== BUTTONS =====
       Group #ButtonSection {
         LayoutMode: Left;
-        Anchor: (Bottom: 6, Height: 40);
-        Padding: (Left: 80, Right: 80);
+        Anchor: (Height: 48);
 
         $C.@TextButton #ApplyBtn {
-          Text: "Apply";
-          Anchor: (Width: 100);
-          Padding: (Top: 8, Bottom: 8);
+          Text: %nickname.ui.apply;
+          Anchor: (Width: 140, Height: 45);
         }
 
         $C.@TextButton #ResetBtn {
-          Text: "Reset";
-          Anchor: (Width: 100, Left: 20);
-          Padding: (Top: 8, Bottom: 8);
+          Text: %nickname.ui.reset;
+          Anchor: (Width: 140, Height: 45, Left: 6);
         }
 
         $C.@CancelTextButton #CancelBtn {
-          Text: "Cancel";
-          Anchor: (Width: 100, Left: 20);
-          Padding: (Top: 8, Bottom: 8);
+          Text: %nickname.ui.cancel;
+          Anchor: (Width: 140, Height: 45, Left: 6);
         }
       }
     }

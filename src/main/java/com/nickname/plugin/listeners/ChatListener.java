@@ -4,7 +4,7 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.Message;
 import com.nickname.plugin.hooks.LuckPermsHook;
-import com.nickname.plugin.hooks.TinyMessageHook;
+import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.storage.NicknameStorage;
 
 import javax.annotation.Nonnull;
@@ -35,21 +35,17 @@ public class ChatListener {
         event.setFormatter((playerRef, message) -> {
             Message result = Message.empty();
 
-            // Add prefix if available (parse with TinyMessage for colors)
+            // Add prefix if available
             if (prefix != null && !prefix.isEmpty()) {
-                if (TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(prefix)) {
-                    result = result.insert(TinyMessageHook.parse(prefix));
-                } else {
-                    result = result.insert(Message.raw(prefix));
-                }
+                result = result.insert(MessageUtil.parse(prefix));
             }
 
             // Add opening bracket
             result = result.insert(Message.raw("<").color("#AAAAAA"));
 
-            // Add display name (parse with TinyMessage if has color tags)
-            if (TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(safeName)) {
-                result = result.insert(TinyMessageHook.parse(safeName));
+            // Add display name
+            if (MessageUtil.hasMarkup(safeName)) {
+                result = result.insert(MessageUtil.parse(safeName));
             } else if (storage.hasNickname(senderUuid)) {
                 result = result.insert(Message.raw(safeName).color("#FFFF55"));
             } else {
@@ -59,13 +55,9 @@ public class ChatListener {
             // Add closing bracket
             result = result.insert(Message.raw(">").color("#AAAAAA"));
 
-            // Add suffix if available (parse with TinyMessage for colors)
+            // Add suffix if available
             if (suffix != null && !suffix.isEmpty()) {
-                if (TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(suffix)) {
-                    result = result.insert(TinyMessageHook.parse(suffix));
-                } else {
-                    result = result.insert(Message.raw(suffix));
-                }
+                result = result.insert(MessageUtil.parse(suffix));
             }
 
             // Add space and message

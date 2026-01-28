@@ -1,6 +1,6 @@
 # NickNameChanger Localization - English (en-US)
 # Author: Morgott
-# Version: 0.0.1
+# Version: 0.0.2
 
 # Command
 command.description = Set your display nickname
@@ -28,3 +28,41 @@ set.updated = Updated: Chat, Tab list, Map, Nameplate
 # Welcome messages (on join)
 welcome.nickname = Welcome! Your nickname:
 welcome.resetHint = Use /nick reset to remove.
+
+# UI Editor
+ui.title = Nickname Editor
+ui.nickname = Nickname
+ui.textStyles = Text Styles
+ui.bold = Bold
+ui.italic = Italic
+ui.underline = Underline
+ui.color = Color
+ui.tabColor = COLOR
+ui.tabGradient = GRADIENT
+ui.start = Start
+ui.end = End
+ui.preview = Preview
+ui.apply = Apply
+ui.reset = Reset
+ui.cancel = Cancel
+# Color names
+ui.red = Red
+ui.orange = Orange
+ui.yellow = Yellow
+ui.green = Green
+ui.aqua = Aqua
+ui.blue = Blue
+ui.purple = Purple
+ui.pink = Pink
+ui.white = White
+ui.gray = Gray
+ui.gold = Gold
+ui.none = None
+# Gradient names
+ui.sunset = Sunset
+ui.ocean = Ocean
+ui.fire = Fire
+ui.forest = Forest
+ui.violet = Violet
+ui.ice = Ice
+ui.rainbow = Rainbow

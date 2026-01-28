@@ -21,7 +21,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
-import com.nickname.plugin.hooks.TinyMessageHook;
+import com.nickname.plugin.hooks.LuckPermsHook;
+import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 
@@ -50,6 +51,8 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         } else {
             this.currentNickname = playerRef.getUsername();
         }
+        // Always start with COLOR tab, even if saved nickname has gradient
+        this.isGradient = false;
     }
 
     private void parseExistingNickname(String formatted) {
@@ -83,6 +86,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     public void build(@Nonnull Ref<EntityStore> ref, @Nonnull UICommandBuilder commandBuilder,
                       @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         commandBuilder.append("Pages/nickname_editor.ui");
+
+        // Set title (programmatically to support localized fonts)
+        commandBuilder.set("#TitleText.Text", Messages.get(playerRef, Messages.UI_TITLE));
 
         // Set initial values
         commandBuilder.set("#NicknameInput.Value", currentNickname);
@@ -158,7 +164,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#ColorPicker",
             com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color_picker").append("@PickerColor", "#ColorPicker.Value"), false);
 
-        // Gradient presets
+        // Gradient presets (8 total)
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset1",
             com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#FF5555").append("G2", "#FFAA00"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset2",
@@ -167,6 +173,14 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#FF5555").append("G2", "#FF0000"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset4",
             com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#55FF55").append("G2", "#00AA00"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset5",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#AA55FF").append("G2", "#FF55FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset6",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#FFD700").append("G2", "#FFA500"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset7",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#AAFFFF").append("G2", "#55AAFF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset8",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#FF0000").append("G2", "#FF00FF"), false);
 
         // Gradient ColorPickers value change
         eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#GradColorPicker1",
@@ -177,12 +191,15 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
 
     private void updateTabStyles(@Nonnull UICommandBuilder commandBuilder) {
         // Update tab button text to show active state (can't change Style dynamically)
+        String colorText = Messages.get(playerRef, Messages.UI_TAB_COLOR);
+        String gradientText = Messages.get(playerRef, Messages.UI_TAB_GRADIENT);
+
         if (isGradient) {
-            commandBuilder.set("#TabColor.Text", "COLOR");
-            commandBuilder.set("#TabGradient.Text", "> GRADIENT <");
+            commandBuilder.set("#TabColor.Text", colorText);
+            commandBuilder.set("#TabGradient.Text", "> " + gradientText + " <");
         } else {
-            commandBuilder.set("#TabColor.Text", "> COLOR <");
-            commandBuilder.set("#TabGradient.Text", "GRADIENT");
+            commandBuilder.set("#TabColor.Text", "> " + colorText + " <");
+            commandBuilder.set("#TabGradient.Text", gradientText);
         }
     }
 
@@ -192,26 +209,8 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     }
 
     private void updatePreview(@Nonnull UICommandBuilder commandBuilder) {
-        // Show nickname text with color
-        commandBuilder.set("#PreviewText.Text", currentNickname);
-        commandBuilder.set("#PreviewText.Style.TextColor", getPreviewColor());
-
-        // Show applied styles as text hint
-        StringBuilder styles = new StringBuilder();
-        if (isBold) styles.append("Bold ");
-        if (isItalic) styles.append("Italic ");
-        if (isUnderline) styles.append("Underline ");
-        if (isGradient) styles.append("Gradient");
-        commandBuilder.set("#PreviewStyles.Text", styles.toString().trim());
-    }
-
-    private String getPreviewColor() {
-        if (isGradient) {
-            return gradColor1;
-        } else if (!currentColor.isEmpty()) {
-            return currentColor;
-        }
-        return "#FFFFFF";
+        String previewText = buildFormattedNickname();
+        commandBuilder.set("#PreviewText.TextSpans", MessageUtil.parseForUI(previewText));
     }
 
     @Override
@@ -234,9 +233,15 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                     return;
                 }
                 case "reset" -> {
-                    resetNickname(ref, store);
-                    playerComponent.getPageManager().setPage(ref, store, Page.None);
-                    return;
+                    // Reset settings without closing - just clear all formatting
+                    currentNickname = playerRef.getUsername();
+                    currentColor = "";
+                    isBold = false;
+                    isItalic = false;
+                    isUnderline = false;
+                    isGradient = false;
+                    gradColor1 = "#FF5555";
+                    gradColor2 = "#5555FF";
                 }
                 case "cancel" -> {
                     playerComponent.getPageManager().setPage(ref, store, Page.None);
@@ -299,6 +304,19 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             commandBuilder.set("#ColorPicker.Value", currentColor);
         }
 
+        // Reset all UI elements when reset button pressed
+        if ("reset".equals(data.action)) {
+            commandBuilder.set("#NicknameInput.Value", currentNickname);
+            commandBuilder.set("#ColorPicker.Value", "#FFFFFF");
+            commandBuilder.set("#GradColorPicker1.Value", gradColor1);
+            commandBuilder.set("#GradColorPicker2.Value", gradColor2);
+            commandBuilder.set("#GradColor1Preview.Background", gradColor1);
+            commandBuilder.set("#GradColor2Preview.Background", gradColor2);
+            commandBuilder.set("#BoldCheckbox #CheckBox.Value", false);
+            commandBuilder.set("#ItalicCheckbox #CheckBox.Value", false);
+            commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", false);
+        }
+
         sendUpdate(commandBuilder);
     }
 
@@ -313,9 +331,23 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         if (!color.startsWith("#")) {
             color = "#" + color;
         }
-        // Take only first 7 characters (#RRGGBB) if color has alpha
-        if (color.length() > 7) {
-            color = color.substring(0, 7);
+        // Handle 8-character hex colors: #RRGGBBVV where VV is brightness/value
+        // ColorPicker returns base color + brightness byte
+        // We need to apply the brightness to the RGB values
+        if (color.length() == 9) {
+            int r = Integer.parseInt(color.substring(1, 3), 16);
+            int g = Integer.parseInt(color.substring(3, 5), 16);
+            int b = Integer.parseInt(color.substring(5, 7), 16);
+            int brightness = Integer.parseInt(color.substring(7, 9), 16);
+
+            // Brightness is inverted: 0xFF = dark, 0x00 = full color
+            // So we invert it: scale = (255 - brightness) / 255
+            float scale = (255 - brightness) / 255.0f;
+            r = Math.min(255, Math.round(r * scale));
+            g = Math.min(255, Math.round(g * scale));
+            b = Math.min(255, Math.round(b * scale));
+
+            color = String.format("#%02X%02X%02X", r, g, b);
         }
         return color.toUpperCase();
     }
@@ -355,13 +387,16 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         storage.setOriginalUsername(uuid, playerRef.getUsername());
         storage.setNickname(uuid, formattedNickname);
 
+        // Sync nickname to LuckPerms if available (for chat formatting compatibility)
+        if (LuckPermsHook.isAvailable()) {
+            LuckPermsHook.setDisplayName(uuid, formattedNickname);
+        }
+
         String plainName = stripColorTags(formattedNickname);
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
         nameplate.setText(plainName);
 
-        Message displayMessage = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(formattedNickname)
-            ? TinyMessageHook.parse(formattedNickname)
-            : Message.raw(formattedNickname).color("#FFFF55");
+        Message displayMessage = MessageUtil.parse(formattedNickname);
         DisplayNameComponent displayNameComponent = new DisplayNameComponent(displayMessage);
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
 
@@ -372,12 +407,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         AddToServerPlayerList addPacket = new AddToServerPlayerList(new ServerPlayerListPlayer[]{playerListEntry});
         Universe.get().broadcastPacket(addPacket);
 
-        Message nicknameMsg = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(formattedNickname)
-            ? TinyMessageHook.parse(formattedNickname)
-            : Message.raw(formattedNickname).color("#FFFF55");
         playerRef.sendMessage(Message.join(
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),
-            nicknameMsg
+            MessageUtil.parse(formattedNickname)
         ));
     }
 
@@ -389,6 +421,11 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         }
 
         storage.removeNickname(uuid);
+
+        // Remove nickname from LuckPerms if available
+        if (LuckPermsHook.isAvailable()) {
+            LuckPermsHook.removeDisplayName(uuid);
+        }
 
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
         nameplate.setText(originalName);

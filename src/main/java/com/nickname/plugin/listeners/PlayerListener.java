@@ -12,7 +12,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
-import com.nickname.plugin.hooks.TinyMessageHook;
+import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 
@@ -44,12 +44,9 @@ public class PlayerListener {
             // Update player list (inventory header, map, tab)
             updatePlayerList(playerRef, nickname);
 
-            Message nicknameMsg = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(nickname)
-                ? TinyMessageHook.parse(nickname)
-                : Message.raw(nickname).color("#FFFF55");
             playerRef.sendMessage(Message.join(
                 Message.raw(Messages.get(playerRef, Messages.WELCOME_NICKNAME) + " ").color("#55FF55"),
-                nicknameMsg
+                MessageUtil.parse(nickname)
             ));
             playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.WELCOME_RESET_HINT)).color("#AAAAAA"));
         }
@@ -60,11 +57,8 @@ public class PlayerListener {
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
         nameplate.setText(stripColorTags(displayName));
 
-        // Update DisplayNameComponent with TinyMessage parsing
-        Message displayMessage = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(displayName)
-            ? TinyMessageHook.parse(displayName)
-            : Message.raw(displayName).color("#FFFF55");
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(displayMessage);
+        // Update DisplayNameComponent
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(MessageUtil.parse(displayName));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 

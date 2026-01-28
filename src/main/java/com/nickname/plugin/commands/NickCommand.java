@@ -16,7 +16,8 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
-import com.nickname.plugin.hooks.TinyMessageHook;
+import com.nickname.plugin.hooks.LuckPermsHook;
+import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 import com.nickname.plugin.ui.NicknameEditorPage;
@@ -130,6 +131,11 @@ public class NickCommand extends AbstractCommand {
 
             storage.removeNickname(uuid);
 
+            // Remove nickname from LuckPerms if available
+            if (LuckPermsHook.isAvailable()) {
+                LuckPermsHook.removeDisplayName(uuid);
+            }
+
             // Reset nameplate to original username
             resetNameplate(ref, store, originalUsername);
 
@@ -167,18 +173,20 @@ public class NickCommand extends AbstractCommand {
         storage.setNickname(uuid, filtered);
         storage.setOriginalUsername(uuid, username);
 
+        // Sync nickname to LuckPerms if available (for chat formatting compatibility)
+        if (LuckPermsHook.isAvailable()) {
+            LuckPermsHook.setDisplayName(uuid, filtered);
+        }
+
         // Update nameplate (above head)
         updateNameplate(ref, store, filtered);
 
         // Update player list (map, tab)
         updatePlayerList(playerRef, filtered);
 
-        Message nicknameMsg = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(filtered)
-            ? TinyMessageHook.parse(filtered)
-            : Message.raw(filtered).color("#FFFF55");
         playerRef.sendMessage(Message.join(
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),
-            nicknameMsg
+            MessageUtil.parse(filtered)
         ));
     }
 
@@ -190,14 +198,8 @@ public class NickCommand extends AbstractCommand {
         String plainName = stripColorTags(displayName);
         nameplate.setText(plainName);
 
-        // Update DisplayNameComponent with TinyMessage parsing if available
-        Message displayMessage;
-        if (TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(displayName)) {
-            displayMessage = TinyMessageHook.parse(displayName);
-        } else {
-            displayMessage = Message.raw(displayName).color("#FFFF55");
-        }
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(displayMessage);
+        // Update DisplayNameComponent
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(MessageUtil.parse(displayName));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 
@@ -240,8 +242,8 @@ public class NickCommand extends AbstractCommand {
 
     @Nonnull
     private String filterNickname(@Nonnull String nickname) {
-        // If TinyMessage is available, allow color tags
-        if (TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(nickname)) {
+        // Allow markup tags
+        if (MessageUtil.hasMarkup(nickname)) {
             return filterNicknameWithTags(nickname);
         }
 

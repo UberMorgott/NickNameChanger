@@ -30,6 +30,11 @@ public final class Messages {
     public static final String WELCOME_NICKNAME = PREFIX + "welcome.nickname";
     public static final String WELCOME_RESET_HINT = PREFIX + "welcome.resetHint";
 
+    // UI keys
+    public static final String UI_TITLE = PREFIX + "ui.title";
+    public static final String UI_TAB_COLOR = PREFIX + "ui.tabColor";
+    public static final String UI_TAB_GRADIENT = PREFIX + "ui.tabGradient";
+
     private Messages() {
         // Utility class
     }

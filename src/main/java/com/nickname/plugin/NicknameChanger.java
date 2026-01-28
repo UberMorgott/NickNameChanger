@@ -7,7 +7,6 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 
 import com.nickname.plugin.commands.NickCommand;
 import com.nickname.plugin.hooks.LuckPermsHook;
-import com.nickname.plugin.hooks.TinyMessageHook;
 import com.nickname.plugin.listeners.ChatListener;
 import com.nickname.plugin.listeners.PlayerListener;
 import com.nickname.plugin.storage.NicknameStorage;
@@ -32,7 +31,6 @@ public class NicknameChanger extends JavaPlugin {
 
         // Initialize optional integrations
         LuckPermsHook.init();
-        TinyMessageHook.init();
 
         this.chatListener = new ChatListener(storage);
         this.playerListener = new PlayerListener(storage);
