@@ -34,7 +34,7 @@ A server-side plugin for Hytale that allows players to customize their display n
 
 ## Optional Dependencies
 
-- **LuckPerms** — If installed, nicknames will sync to LuckPerms `display-name` meta for chat formatting compatibility
+- **[LuckPerms](https://luckperms.net/)** — If installed, nicknames will sync to LuckPerms `display-name` meta for chat formatting compatibility
 
 ## Limitations
 
@@ -83,7 +83,7 @@ A server-side plugin for Hytale that allows players to customize their display n
 
 ## Опциональные зависимости
 
-- **LuckPerms** — Если установлен, никнеймы будут синхронизироваться с мета-значением `display-name` в LuckPerms
+- **[LuckPerms](https://luckperms.net/)** — Если установлен, никнеймы будут синхронизироваться с мета-значением `display-name` в LuckPerms
 
 ## Ограничения
 
