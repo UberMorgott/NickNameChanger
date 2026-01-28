@@ -46,9 +46,9 @@ public class LuckPermsHook {
                 // LP became available after initial failed check
                 System.out.println("[NicknameChanger] LuckPerms integration enabled (late binding)!");
             }
-        } catch (ClassNotFoundException | IllegalStateException e) {
+        } catch (ClassNotFoundException | IllegalStateException | NoClassDefFoundError e) {
             if (!initialized) {
-                System.out.println("[NicknameChanger] LuckPerms not found at startup, will retry on demand.");
+                System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
                 initialized = true;
             }
             available = false;

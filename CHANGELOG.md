@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.3] - 2026-01-29
+
+### Fixed
+- Plugin now works without LuckPerms (fixed NoClassDefFoundError crash)
+
 ## [0.0.2] - 2026-01-29
 
 ### Added
