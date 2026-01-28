@@ -2,6 +2,8 @@
 
 A server-side plugin for Hytale that allows players to customize their display nickname with colors, gradients, and text styles.
 
+![Nickname Editor](img/editor_gradient.png)
+
 ## Features
 
 - **UI Editor** — Graphical interface for nickname customization
@@ -48,6 +50,8 @@ A server-side plugin for Hytale that allows players to customize their display n
 # NickNameChanger (Русский)
 
 Серверный плагин для Hytale, позволяющий игрокам менять отображаемый никнейм с цветами, градиентами и стилями текста.
+
+![Редактор никнейма](img/editor_gradient.png)
 
 ## Возможности
 
