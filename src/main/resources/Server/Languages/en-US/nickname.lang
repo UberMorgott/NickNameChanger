@@ -1,0 +1,30 @@
+# NickNameChanger Localization - English (en-US)
+# Author: Morgott
+# Version: 0.0.1
+
+# Command
+command.description = Set your display nickname
+
+# Errors
+error.playersOnly = This command can only be used by players.
+error.notInWorld = Error: Player not in world.
+error.minLength = Nickname must be at least {min} characters.
+error.maxLength = Nickname cannot exceed {max} characters.
+error.invalid = Invalid nickname.
+
+# Current nickname info
+current.nickname = Your current nickname:
+current.noNickname = No nickname set. Your name:
+usage = Usage: /nick <name> | /nick reset
+
+# Reset messages
+reset.success = Nickname reset to:
+reset.noNickname = You don't have a nickname.
+
+# Set messages
+set.success = Nickname set to:
+set.updated = Updated: Chat, Tab list, Map, Nameplate
+
+# Welcome messages (on join)
+welcome.nickname = Welcome! Your nickname:
+welcome.resetHint = Use /nick reset to remove.

@@ -1,0 +1,439 @@
+package com.nickname.plugin.ui;
+
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.codec.KeyedCodec;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
+import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.protocol.packets.interface_.Page;
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
+import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
+import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
+import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
+import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
+import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
+import com.nickname.plugin.hooks.TinyMessageHook;
+import com.nickname.plugin.i18n.Messages;
+import com.nickname.plugin.storage.NicknameStorage;
+
+import javax.annotation.Nonnull;
+import java.util.UUID;
+
+public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPage.EventData> {
+
+    private final NicknameStorage storage;
+    private String currentNickname;
+    private String currentColor = "";
+    private boolean isBold = false;
+    private boolean isItalic = false;
+    private boolean isUnderline = false;
+    private boolean isGradient = false;
+    private String gradColor1 = "#FF5555";
+    private String gradColor2 = "#5555FF";
+
+    public NicknameEditorPage(@Nonnull NicknameStorage storage, @Nonnull PlayerRef playerRef) {
+        super(playerRef, CustomPageLifetime.CanDismissOrCloseThroughInteraction, EventData.CODEC);
+        this.storage = storage;
+
+        String existingNick = storage.getNickname(playerRef.getUuid());
+        if (existingNick != null) {
+            parseExistingNickname(existingNick);
+        } else {
+            this.currentNickname = playerRef.getUsername();
+        }
+    }
+
+    private void parseExistingNickname(String formatted) {
+        this.isBold = formatted.contains("<b>") || formatted.contains("<bold>");
+        this.isItalic = formatted.contains("<i>") || formatted.contains("<italic>");
+        this.isUnderline = formatted.contains("<u>") || formatted.contains("<underline>");
+
+        if (formatted.contains("<gradient:")) {
+            this.isGradient = true;
+            int start = formatted.indexOf("<gradient:") + 10;
+            int end = formatted.indexOf(">", start);
+            if (end > start) {
+                String[] colors = formatted.substring(start, end).split(":");
+                if (colors.length >= 2) {
+                    this.gradColor1 = colors[0];
+                    this.gradColor2 = colors[1];
+                }
+            }
+        } else if (formatted.contains("<color:")) {
+            int start = formatted.indexOf("<color:") + 7;
+            int end = formatted.indexOf(">", start);
+            if (end > start) {
+                this.currentColor = formatted.substring(start, end);
+            }
+        }
+
+        this.currentNickname = stripColorTags(formatted);
+    }
+
+    @Override
+    public void build(@Nonnull Ref<EntityStore> ref, @Nonnull UICommandBuilder commandBuilder,
+                      @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
+        commandBuilder.append("Pages/nickname_editor.ui");
+
+        // Set initial values
+        commandBuilder.set("#NicknameInput.Value", currentNickname);
+        commandBuilder.set("#ColorPicker.Value", currentColor.isEmpty() ? "#FFFFFF" : currentColor);
+        commandBuilder.set("#GradColorPicker1.Value", gradColor1);
+        commandBuilder.set("#GradColorPicker2.Value", gradColor2);
+        commandBuilder.set("#GradColor1Preview.Background", gradColor1);
+        commandBuilder.set("#GradColor2Preview.Background", gradColor2);
+
+        // Set checkbox states
+        commandBuilder.set("#BoldCheckbox #CheckBox.Value", isBold);
+        commandBuilder.set("#ItalicCheckbox #CheckBox.Value", isItalic);
+        commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", isUnderline);
+
+        // Set tab states and visibility
+        updateTabStyles(commandBuilder);
+        updateSectionVisibility(commandBuilder);
+        updatePreview(commandBuilder);
+
+        // Nickname input
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#NicknameInput",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "nickname_changed").append("@Nickname", "#NicknameInput.Value"), false);
+
+        // Style checkboxes
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#BoldCheckbox #CheckBox",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "toggle_bold").append("@Checked", "#BoldCheckbox #CheckBox.Value"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#ItalicCheckbox #CheckBox",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "toggle_italic").append("@Checked", "#ItalicCheckbox #CheckBox.Value"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#UnderlineCheckbox #CheckBox",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "toggle_underline").append("@Checked", "#UnderlineCheckbox #CheckBox.Value"), false);
+
+        // Tab buttons
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#TabColor",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "tab_color"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#TabGradient",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "tab_gradient"), false);
+
+        // Main action buttons
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#CancelBtn",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "cancel"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ApplyBtn",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "apply").append("@Nickname", "#NicknameInput.Value"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ResetBtn",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "reset"), false);
+
+        // Color preset buttons
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorRed",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#FF5555"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorOrange",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#FFAA00"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorYellow",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#FFFF55"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorGreen",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#55FF55"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorAqua",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#55FFFF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorBlue",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#5555FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorPurple",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#AA55FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorPink",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#FF55FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorWhite",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#FFFFFF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorGray",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#AAAAAA"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorGold",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", "#FFD700"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ColorNone",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color").append("Color", ""), false);
+
+        // ColorPicker value change
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#ColorPicker",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "color_picker").append("@PickerColor", "#ColorPicker.Value"), false);
+
+        // Gradient presets
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset1",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#FF5555").append("G2", "#FFAA00"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset2",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#55FFFF").append("G2", "#5555FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset3",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#FF5555").append("G2", "#FF0000"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#GradPreset4",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_preset").append("G1", "#55FF55").append("G2", "#00AA00"), false);
+
+        // Gradient ColorPickers value change
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#GradColorPicker1",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_color1").append("@G1", "#GradColorPicker1.Value"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#GradColorPicker2",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "grad_color2").append("@G2", "#GradColorPicker2.Value"), false);
+    }
+
+    private void updateTabStyles(@Nonnull UICommandBuilder commandBuilder) {
+        // Update tab button text to show active state (can't change Style dynamically)
+        if (isGradient) {
+            commandBuilder.set("#TabColor.Text", "COLOR");
+            commandBuilder.set("#TabGradient.Text", "> GRADIENT <");
+        } else {
+            commandBuilder.set("#TabColor.Text", "> COLOR <");
+            commandBuilder.set("#TabGradient.Text", "GRADIENT");
+        }
+    }
+
+    private void updateSectionVisibility(@Nonnull UICommandBuilder commandBuilder) {
+        commandBuilder.set("#SingleColorSection.Visible", !isGradient);
+        commandBuilder.set("#GradientSection.Visible", isGradient);
+    }
+
+    private void updatePreview(@Nonnull UICommandBuilder commandBuilder) {
+        // Show nickname text with color
+        commandBuilder.set("#PreviewText.Text", currentNickname);
+        commandBuilder.set("#PreviewText.Style.TextColor", getPreviewColor());
+
+        // Show applied styles as text hint
+        StringBuilder styles = new StringBuilder();
+        if (isBold) styles.append("Bold ");
+        if (isItalic) styles.append("Italic ");
+        if (isUnderline) styles.append("Underline ");
+        if (isGradient) styles.append("Gradient");
+        commandBuilder.set("#PreviewStyles.Text", styles.toString().trim());
+    }
+
+    private String getPreviewColor() {
+        if (isGradient) {
+            return gradColor1;
+        } else if (!currentColor.isEmpty()) {
+            return currentColor;
+        }
+        return "#FFFFFF";
+    }
+
+    @Override
+    public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull EventData data) {
+        Player playerComponent = store.getComponent(ref, Player.getComponentType());
+
+        // Update nickname if provided
+        if (data.nickname != null && !data.nickname.isEmpty()) {
+            currentNickname = data.nickname;
+        }
+
+        if (data.action != null) {
+            switch (data.action) {
+                case "nickname_changed" -> {
+                    // Just update preview, nickname already set above
+                }
+                case "apply" -> {
+                    applyNickname(ref, store);
+                    playerComponent.getPageManager().setPage(ref, store, Page.None);
+                    return;
+                }
+                case "reset" -> {
+                    resetNickname(ref, store);
+                    playerComponent.getPageManager().setPage(ref, store, Page.None);
+                    return;
+                }
+                case "cancel" -> {
+                    playerComponent.getPageManager().setPage(ref, store, Page.None);
+                    return;
+                }
+                case "tab_color" -> {
+                    isGradient = false;
+                }
+                case "tab_gradient" -> {
+                    isGradient = true;
+                    currentColor = "";
+                }
+                case "toggle_bold" -> isBold = data.checked;
+                case "toggle_italic" -> isItalic = data.checked;
+                case "toggle_underline" -> isUnderline = data.checked;
+                case "color" -> {
+                    if (data.color != null) {
+                        currentColor = data.color;
+                    }
+                }
+                case "color_picker" -> {
+                    if (data.pickerColor != null && isValidHexColor(data.pickerColor)) {
+                        currentColor = normalizeHexColor(data.pickerColor);
+                    }
+                }
+                case "grad_preset" -> {
+                    if (data.g1 != null) gradColor1 = data.g1;
+                    if (data.g2 != null) gradColor2 = data.g2;
+                }
+                case "grad_color1" -> {
+                    if (data.g1 != null && isValidHexColor(data.g1)) {
+                        gradColor1 = normalizeHexColor(data.g1);
+                    }
+                }
+                case "grad_color2" -> {
+                    if (data.g2 != null && isValidHexColor(data.g2)) {
+                        gradColor2 = normalizeHexColor(data.g2);
+                    }
+                }
+            }
+        }
+
+        UICommandBuilder commandBuilder = new UICommandBuilder();
+        updateTabStyles(commandBuilder);
+        updateSectionVisibility(commandBuilder);
+        updatePreview(commandBuilder);
+
+        // Update gradient color previews and pickers
+        if ("grad_preset".equals(data.action) || "grad_color1".equals(data.action) || "grad_color2".equals(data.action)) {
+            commandBuilder.set("#GradColor1Preview.Background", gradColor1);
+            commandBuilder.set("#GradColor2Preview.Background", gradColor2);
+        }
+        if ("grad_preset".equals(data.action)) {
+            commandBuilder.set("#GradColorPicker1.Value", gradColor1);
+            commandBuilder.set("#GradColorPicker2.Value", gradColor2);
+        }
+
+        // Update single color picker when preset selected
+        if ("color".equals(data.action) && !currentColor.isEmpty()) {
+            commandBuilder.set("#ColorPicker.Value", currentColor);
+        }
+
+        sendUpdate(commandBuilder);
+    }
+
+    private boolean isValidHexColor(String color) {
+        if (color == null || color.isEmpty()) return false;
+        // Support 6 or 8 character hex (with or without alpha)
+        return color.matches("^#?[0-9A-Fa-f]{6,8}$");
+    }
+
+    private String normalizeHexColor(String color) {
+        if (color == null || color.isEmpty()) return "";
+        if (!color.startsWith("#")) {
+            color = "#" + color;
+        }
+        // Take only first 7 characters (#RRGGBB) if color has alpha
+        if (color.length() > 7) {
+            color = color.substring(0, 7);
+        }
+        return color.toUpperCase();
+    }
+
+    private String buildFormattedNickname() {
+        StringBuilder sb = new StringBuilder();
+
+        if (isGradient) {
+            sb.append("<gradient:").append(gradColor1).append(":").append(gradColor2).append(">");
+        } else if (!currentColor.isEmpty()) {
+            sb.append("<color:").append(currentColor).append(">");
+        }
+
+        if (isBold) sb.append("<b>");
+        if (isItalic) sb.append("<i>");
+        if (isUnderline) sb.append("<u>");
+
+        sb.append(currentNickname);
+
+        if (isUnderline) sb.append("</u>");
+        if (isItalic) sb.append("</i>");
+        if (isBold) sb.append("</b>");
+
+        if (isGradient) {
+            sb.append("</gradient>");
+        } else if (!currentColor.isEmpty()) {
+            sb.append("</color>");
+        }
+
+        return sb.toString();
+    }
+
+    private void applyNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
+        String formattedNickname = buildFormattedNickname();
+        UUID uuid = playerRef.getUuid();
+
+        storage.setOriginalUsername(uuid, playerRef.getUsername());
+        storage.setNickname(uuid, formattedNickname);
+
+        String plainName = stripColorTags(formattedNickname);
+        Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
+        nameplate.setText(plainName);
+
+        Message displayMessage = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(formattedNickname)
+            ? TinyMessageHook.parse(formattedNickname)
+            : Message.raw(formattedNickname).color("#FFFF55");
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(displayMessage);
+        store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
+
+        UUID worldUuid = playerRef.getWorldUuid();
+        RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
+        Universe.get().broadcastPacket(removePacket);
+        ServerPlayerListPlayer playerListEntry = new ServerPlayerListPlayer(uuid, plainName, worldUuid, 0);
+        AddToServerPlayerList addPacket = new AddToServerPlayerList(new ServerPlayerListPlayer[]{playerListEntry});
+        Universe.get().broadcastPacket(addPacket);
+
+        Message nicknameMsg = TinyMessageHook.isAvailable() && TinyMessageHook.hasColorTags(formattedNickname)
+            ? TinyMessageHook.parse(formattedNickname)
+            : Message.raw(formattedNickname).color("#FFFF55");
+        playerRef.sendMessage(Message.join(
+            Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),
+            nicknameMsg
+        ));
+    }
+
+    private void resetNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
+        UUID uuid = playerRef.getUuid();
+        String originalName = storage.getOriginalUsername(uuid);
+        if (originalName == null) {
+            originalName = playerRef.getUsername();
+        }
+
+        storage.removeNickname(uuid);
+
+        Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
+        nameplate.setText(originalName);
+
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(originalName).color("#FFFFFF"));
+        store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
+
+        UUID worldUuid = playerRef.getWorldUuid();
+        RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
+        Universe.get().broadcastPacket(removePacket);
+        ServerPlayerListPlayer playerListEntry = new ServerPlayerListPlayer(uuid, originalName, worldUuid, 0);
+        AddToServerPlayerList addPacket = new AddToServerPlayerList(new ServerPlayerListPlayer[]{playerListEntry});
+        Universe.get().broadcastPacket(addPacket);
+
+        playerRef.sendMessage(Message.join(
+            Message.raw(Messages.get(playerRef, Messages.RESET_SUCCESS) + " ").color("#55FF55"),
+            Message.raw(originalName).color("#FFFFFF")
+        ));
+    }
+
+    private String stripColorTags(String input) {
+        return input.replaceAll("<[^>]+>", "").replaceAll("</[^>]+>", "");
+    }
+
+    public static class EventData {
+        public static final BuilderCodec<EventData> CODEC = BuilderCodec.builder(EventData.class, EventData::new)
+            .append(new KeyedCodec<>("Action", Codec.STRING), (e, s) -> e.action = s, e -> e.action).add()
+            .append(new KeyedCodec<>("@Nickname", Codec.STRING), (e, s) -> e.nickname = s, e -> e.nickname).add()
+            .append(new KeyedCodec<>("Color", Codec.STRING), (e, s) -> e.color = s, e -> e.color).add()
+            .append(new KeyedCodec<>("@Checked", Codec.BOOLEAN), (e, b) -> e.checked = b, e -> e.checked).add()
+            .append(new KeyedCodec<>("@PickerColor", Codec.STRING), (e, s) -> e.pickerColor = s, e -> e.pickerColor).add()
+            .append(new KeyedCodec<>("G1", Codec.STRING), (e, s) -> e.g1 = s, e -> e.g1).add()
+            .append(new KeyedCodec<>("G2", Codec.STRING), (e, s) -> e.g2 = s, e -> e.g2).add()
+            .append(new KeyedCodec<>("@G1", Codec.STRING), (e, s) -> e.g1 = s, e -> e.g1).add()
+            .append(new KeyedCodec<>("@G2", Codec.STRING), (e, s) -> e.g2 = s, e -> e.g2).add()
+            .build();
+
+        public String action;
+        public String nickname;
+        public String color;
+        public boolean checked;
+        public String pickerColor;
+        public String g1;
+        public String g2;
+
+        public EventData() {}
+    }
+}

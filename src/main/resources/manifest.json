@@ -1,0 +1,20 @@
+{
+  "Group": "NickNameChanger",
+  "Name": "NickNameChanger",
+  "Version": "0.0.1",
+  "Description": "Allows players to change their display nickname in chat, map, and above their heads",
+  "Authors": [
+    {
+      "Name": "Morgott"
+    }
+  ],
+  "Main": "com.nickname.plugin.NicknameChanger",
+  "ServerVersion": "*",
+  "Dependencies": {},
+  "OptionalDependencies": {
+    "Zoltus:TinyMessage": "*",
+    "lucko:LuckPerms": "*"
+  },
+  "DisabledByDefault": false,
+  "IncludesAssetPack": true
+}
