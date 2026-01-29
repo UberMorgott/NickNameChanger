@@ -1,5 +1,7 @@
 # NickNameChanger
 
+[![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![ru](https://img.shields.io/badge/lang-Русский-green)](README.ru.md)
+
 A server-side plugin for Hytale that allows players to customize their display nickname with colors, gradients, and text styles.
 
 ![Nickname Editor](img/editor_gradient.png)
@@ -27,7 +29,7 @@ A server-side plugin for Hytale that allows players to customize their display n
 
 ## Installation
 
-1. Place `NickNameChanger-*.*.*.jar` into `Hytale\UserData\Mods`
+1. Place `NickNameChanger-x.x.x.jar` into `Hytale\UserData\Mods`
 2. Launch the game and open world settings
 3. Enable the mod in the Mods section
 4. Load the world
@@ -45,51 +47,6 @@ A server-side plugin for Hytale that allows players to customize their display n
 - English (en-US)
 - Russian (ru-RU)
 
----
+## Credits
 
-# NickNameChanger (Русский)
-
-Серверный плагин для Hytale, позволяющий игрокам менять отображаемый никнейм с цветами, градиентами и стилями текста.
-
-![Редактор никнейма](img/editor_gradient.png)
-
-## Возможности
-
-- **UI Редактор** — Графический интерфейс для настройки никнейма
-  - 12 готовых цветов + выбор произвольного цвета
-  - 8 готовых градиентов + произвольные цвета градиента
-  - Стили текста: Жирный, Курсив, Подчёркнутый
-  - Превью в реальном времени
-- **Чат** — Никнейм отображается в сообщениях чата
-- **Табличка над головой** — Имя над персонажем
-- **Карта** — Имя на карте мира
-- **Таб-лист** — Никнейм в списке игроков
-- **LuckPerms** — Опциональная интеграция для совместимости с форматированием чата
-
-## Команды
-
-| Команда | Описание |
-|---------|----------|
-| `/nick` | Открыть редактор никнейма |
-| `/nick <имя>` | Установить никнейм через команду |
-| `/nick reset` | Сбросить на оригинальное имя |
-
-## Установка
-
-1. Поместите `NickNameChanger-*.*.*.jar` в папку `Hytale\UserData\Mods`
-2. Запустите игру и откройте настройки мира
-3. Включите мод в разделе Mods
-4. Загрузите мир
-
-## Опциональные зависимости
-
-- **[LuckPerms](https://luckperms.net/)** — Если установлен, никнеймы будут синхронизироваться с мета-значением `display-name` в LuckPerms
-
-## Ограничения
-
-- **Шапка инвентаря** — Невозможно изменить, так как отрисовывается на стороне клиента
-
-## Локализация
-
-- Английский (en-US)
-- Русский (ru-RU)
+- **Author:** Morgott
