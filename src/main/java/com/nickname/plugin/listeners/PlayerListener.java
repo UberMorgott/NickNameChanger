@@ -69,6 +69,7 @@ public class PlayerListener {
     private void updatePlayerList(PlayerRef playerRef, String displayName) {
         UUID uuid = playerRef.getUuid();
         UUID worldUuid = playerRef.getWorldUuid();
+        String plainName = stripColorTags(displayName);
 
         // Remove player from list
         RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
@@ -77,7 +78,7 @@ public class PlayerListener {
         // Add player back with new display name
         ServerPlayerListPlayer playerListEntry = new ServerPlayerListPlayer(
             uuid,
-            displayName,
+            plainName,
             worldUuid,
             0  // ping will be updated by the ping system
         );
