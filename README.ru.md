@@ -34,9 +34,39 @@
 3. Включите мод в разделе Mods
 4. Загрузите мир
 
+## Права доступа
+
+Все права **разрешены по умолчанию** — мод работает сразу без настройки.
+
+| Право | Описание | По умолчанию |
+|---|---|---|
+| `nickname.use` | Доступ к команде `/nick` | ✅ Разрешено |
+| `nickname.format` | Цвета, градиенты, bold/italic/underline | ✅ Разрешено |
+
+Чтобы **запретить** право, используйте префикс `-`:
+
+**С LuckPerms:**
+```
+/lp group default permission set -nickname.format true    # запретить форматирование для группы
+/lp user Steve permission set -nickname.use true          # запретить /nick конкретному игроку
+```
+
+**Без LuckPerms** (`permissions.json`):
+```json
+{
+  "groups": {
+    "Default": ["-nickname.format"],
+    "VIP": ["nickname.format"]
+  }
+}
+```
+
 ## Опциональные зависимости
 
-- **[LuckPerms](https://luckperms.net/)** — Если установлен, никнеймы будут синхронизироваться с мета-значением `display-name` в LuckPerms
+- **[LuckPerms](https://luckperms.net/)** — Если установлен:
+  - Никнеймы синхронизируются с мета-значением `display-name` в LuckPerms
+  - В чате отображаются prefix/suffix из LuckPerms рядом с никнеймом
+  - Правами можно управлять через LuckPerms
 
 ## Ограничения
 

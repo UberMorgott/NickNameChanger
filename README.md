@@ -34,9 +34,39 @@ A server-side plugin for Hytale that allows players to customize their display n
 3. Enable the mod in the Mods section
 4. Load the world
 
+## Permissions
+
+All permissions are **allowed by default** — the mod works out of the box with no configuration.
+
+| Permission | Description | Default |
+|---|---|---|
+| `nickname.use` | Access to `/nick` command | ✅ Allowed |
+| `nickname.format` | Use colors, gradients, bold/italic/underline | ✅ Allowed |
+
+To **deny** a permission, use the `-` prefix:
+
+**With LuckPerms:**
+```
+/lp group default permission set -nickname.format true    # deny formatting for default group
+/lp user Steve permission set -nickname.use true          # deny /nick for specific player
+```
+
+**Without LuckPerms** (`permissions.json`):
+```json
+{
+  "groups": {
+    "Default": ["-nickname.format"],
+    "VIP": ["nickname.format"]
+  }
+}
+```
+
 ## Optional Dependencies
 
-- **[LuckPerms](https://luckperms.net/)** — If installed, nicknames will sync to LuckPerms `display-name` meta for chat formatting compatibility
+- **[LuckPerms](https://luckperms.net/)** — If installed:
+  - Nicknames sync to LuckPerms `display-name` meta
+  - Chat displays LuckPerms prefix/suffix alongside the nickname
+  - Permissions can be managed through LuckPerms
 
 ## Limitations
 
