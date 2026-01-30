@@ -11,6 +11,7 @@ error.notInWorld = Error: Player not in world.
 error.minLength = Nickname must be at least {min} characters.
 error.maxLength = Nickname cannot exceed {max} characters.
 error.invalid = Invalid nickname.
+error.noFormatPermission = You don't have permission to use colors and styles.
 
 # Current nickname info
 current.nickname = Your current nickname:

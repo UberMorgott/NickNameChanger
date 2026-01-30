@@ -11,6 +11,7 @@ import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
@@ -28,6 +29,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class NickCommand extends AbstractCommand {
 
+    public static final String PERM_USE = "nickname.use";
+    public static final String PERM_FORMAT = "nickname.format";
+
     private final NicknameStorage storage;
     private static final int MIN_LENGTH = 2;
     private static final int MAX_LENGTH = 32;
@@ -40,7 +44,8 @@ public class NickCommand extends AbstractCommand {
 
     @Override
     public boolean hasPermission(@Nonnull CommandSender sender) {
-        return true;
+        // Default: allowed. Deny only with explicit "-nickname.use"
+        return sender.hasPermission(PERM_USE, true);
     }
 
     @Override
@@ -152,6 +157,12 @@ public class NickCommand extends AbstractCommand {
     }
 
     private void setNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PlayerRef playerRef, @Nonnull UUID uuid, @Nonnull String username, @Nonnull String nickname) {
+        // Check format permission if nickname contains markup (default: allowed)
+        if (MessageUtil.hasMarkup(nickname) && !PermissionsModule.get().hasPermission(uuid, PERM_FORMAT, true)) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_NO_FORMAT_PERM)).color("#FF5555"));
+            return;
+        }
+
         // Check length without color tags
         String plainNickname = stripColorTags(nickname);
         if (plainNickname.length() < MIN_LENGTH) {

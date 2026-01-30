@@ -1,7 +1,7 @@
 {
   "Group": "NickNameChanger",
   "Name": "NickNameChanger",
-  "Version": "0.0.3",
+  "Version": "0.0.4",
   "Description": "Allows players to change their display nickname in chat, map, and above their heads",
   "Authors": [
     {

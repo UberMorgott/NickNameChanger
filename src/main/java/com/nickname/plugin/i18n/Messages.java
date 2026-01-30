@@ -21,6 +21,7 @@ public final class Messages {
     public static final String ERROR_MIN_LENGTH = PREFIX + "error.minLength";
     public static final String ERROR_MAX_LENGTH = PREFIX + "error.maxLength";
     public static final String ERROR_INVALID = PREFIX + "error.invalid";
+    public static final String ERROR_NO_FORMAT_PERM = PREFIX + "error.noFormatPermission";
     public static final String CURRENT_NICKNAME = PREFIX + "current.nickname";
     public static final String CURRENT_NO_NICKNAME = PREFIX + "current.noNickname";
     public static final String USAGE = PREFIX + "usage";

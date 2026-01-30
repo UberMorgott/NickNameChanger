@@ -21,6 +21,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
+import com.hypixel.hytale.server.core.permissions.PermissionsModule;
+import com.nickname.plugin.commands.NickCommand;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
@@ -380,9 +382,21 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         return sb.toString();
     }
 
+    private boolean hasFormatting() {
+        return !currentColor.isEmpty() || isGradient || isBold || isItalic || isUnderline;
+    }
+
     private void applyNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
-        String formattedNickname = buildFormattedNickname();
         UUID uuid = playerRef.getUuid();
+
+        // Strip formatting if player lacks nickname.format permission
+        String formattedNickname;
+        if (hasFormatting() && !PermissionsModule.get().hasPermission(uuid, NickCommand.PERM_FORMAT, true)) {
+            formattedNickname = currentNickname;
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_NO_FORMAT_PERM)).color("#FF5555"));
+        } else {
+            formattedNickname = buildFormattedNickname();
+        }
 
         storage.setOriginalUsername(uuid, playerRef.getUsername());
         storage.setNickname(uuid, formattedNickname);
