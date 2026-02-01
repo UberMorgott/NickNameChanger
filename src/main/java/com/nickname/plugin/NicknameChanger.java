@@ -29,13 +29,6 @@ public class NicknameChanger extends JavaPlugin {
         Path dataFolder = getDataDirectory();
         this.storage = new NicknameStorage(dataFolder);
 
-        // Initialize optional integrations
-        try {
-            LuckPermsHook.init();
-        } catch (NoClassDefFoundError e) {
-            System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
-        }
-
         this.chatListener = new ChatListener(storage);
         this.playerListener = new PlayerListener(storage);
 
@@ -46,7 +39,12 @@ public class NicknameChanger extends JavaPlugin {
 
     @Override
     protected void start() {
-        // Plugin enabled
+        // Initialize optional integrations after all plugins are enabled
+        try {
+            LuckPermsHook.init();
+        } catch (NoClassDefFoundError e) {
+            System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
+        }
     }
 
     @Override
