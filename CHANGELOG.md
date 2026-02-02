@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.7] - 2026-02-02
+
+### Added
+- **Configurable chat format** — new `chatFormat` field in `config.json` with placeholders: `{prefix}`, `{username}`, `{suffix}`, `{message}`
+- **Config loading** — `config.json` is now actually loaded and used at runtime
+- Config options `showPrefix` / `showSuffix` now work as intended
+
+### Fixed
+- **LuckPerms compatibility** — chat event handler now runs at `LAST` priority to prevent other plugins from overriding the nickname formatter
+
 ## [0.0.3] - 2026-01-29
 
 ### Fixed

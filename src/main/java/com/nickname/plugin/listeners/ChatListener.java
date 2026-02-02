@@ -3,6 +3,8 @@ package com.nickname.plugin.listeners;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.Message;
+import com.nickname.plugin.chat.ChatFormatParser;
+import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.storage.NicknameStorage;
@@ -14,9 +16,13 @@ import java.util.concurrent.CompletableFuture;
 public class ChatListener {
 
     private final NicknameStorage storage;
+    private final PluginConfig config;
+    private final ChatFormatParser formatParser;
 
-    public ChatListener(@Nonnull NicknameStorage storage) {
+    public ChatListener(@Nonnull NicknameStorage storage, @Nonnull PluginConfig config) {
         this.storage = storage;
+        this.config = config;
+        this.formatParser = new ChatFormatParser(config.chatFormat);
     }
 
     public CompletableFuture<String> onPlayerChat(@Nonnull PlayerChatEvent event) {
@@ -25,50 +31,60 @@ public class ChatListener {
         String originalName = sender.getUsername();
         String displayName = storage.getDisplayName(senderUuid, originalName);
 
-        // Ensure displayName is never null
         final String safeName = displayName != null ? displayName : originalName;
 
-        // Get LuckPerms prefix/suffix if available
-        final String prefix = LuckPermsHook.isAvailable() ? LuckPermsHook.getPrefix(senderUuid) : null;
-        final String suffix = LuckPermsHook.isAvailable() ? LuckPermsHook.getSuffix(senderUuid) : null;
+        final String prefix = (LuckPermsHook.isAvailable() && config.integrations.luckperms.showPrefix)
+                ? LuckPermsHook.getPrefix(senderUuid) : null;
+        final String suffix = (LuckPermsHook.isAvailable() && config.integrations.luckperms.showSuffix)
+                ? LuckPermsHook.getSuffix(senderUuid) : null;
 
         event.setFormatter((playerRef, message) -> {
             Message result = Message.empty();
 
-            // Add prefix if available
-            if (prefix != null && !prefix.isEmpty()) {
-                result = result.insert(MessageUtil.parse(prefix));
+            for (ChatFormatParser.Token token : formatParser.getTokens()) {
+                if (token.type == ChatFormatParser.TokenType.PLACEHOLDER) {
+                    switch (token.value) {
+                        case "prefix":
+                            if (prefix != null && !prefix.isEmpty()) {
+                                result = result.insert(MessageUtil.parse(prefix));
+                            }
+                            break;
+                        case "suffix":
+                            if (suffix != null && !suffix.isEmpty()) {
+                                result = result.insert(MessageUtil.parse(suffix));
+                            }
+                            break;
+                        case "username":
+                            result = result.insert(buildUsername(senderUuid, safeName));
+                            break;
+                        case "message":
+                            result = result.insert(Message.raw(message).color("#FFFFFF"));
+                            break;
+                    }
+                } else {
+                    String text = token.value;
+                    if (MessageUtil.hasMarkup(text)) {
+                        result = result.insert(MessageUtil.parse(text));
+                    } else {
+                        result = result.insert(Message.raw(text).color("#AAAAAA"));
+                    }
+                }
             }
-
-            // Add opening bracket
-            result = result.insert(Message.raw("<").color("#AAAAAA"));
-
-            // Add display name
-            if (MessageUtil.hasMarkup(safeName)) {
-                result = result.insert(MessageUtil.parse(safeName));
-            } else if (storage.hasNickname(senderUuid)) {
-                result = result.insert(Message.raw(safeName).color("#FFFF55"));
-            } else {
-                result = result.insert(Message.raw(safeName).color("#FFFFFF"));
-            }
-
-            // Add closing bracket
-            result = result.insert(Message.raw(">").color("#AAAAAA"));
-
-            // Add suffix if available
-            if (suffix != null && !suffix.isEmpty()) {
-                result = result.insert(MessageUtil.parse(suffix));
-            }
-
-            // Add space and message
-            result = result.insert(Message.raw(" ").color("#AAAAAA"));
-            result = result.insert(Message.raw(message).color("#FFFFFF"));
 
             return result;
         });
 
         String content = event.getContent();
-        CompletableFuture<String> result = CompletableFuture.completedFuture(content != null ? content : "");
-        return result;
+        return CompletableFuture.completedFuture(content != null ? content : "");
+    }
+
+    private Message buildUsername(UUID uuid, String name) {
+        if (MessageUtil.hasMarkup(name)) {
+            return MessageUtil.parse(name);
+        } else if (storage.hasNickname(uuid)) {
+            return Message.raw(name).color("#FFFF55");
+        } else {
+            return Message.raw(name).color("#FFFFFF");
+        }
     }
 }

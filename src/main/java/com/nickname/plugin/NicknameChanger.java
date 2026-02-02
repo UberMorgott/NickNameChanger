@@ -2,10 +2,12 @@ package com.nickname.plugin;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 
 import com.nickname.plugin.commands.NickCommand;
+import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.listeners.ChatListener;
 import com.nickname.plugin.listeners.PlayerListener;
@@ -27,13 +29,15 @@ public class NicknameChanger extends JavaPlugin {
     @Override
     protected void setup() {
         Path dataFolder = getDataDirectory();
+        PluginConfig config = PluginConfig.load(dataFolder);
+
         this.storage = new NicknameStorage(dataFolder);
 
-        this.chatListener = new ChatListener(storage);
+        this.chatListener = new ChatListener(storage, config);
         this.playerListener = new PlayerListener(storage);
 
         getCommandRegistry().registerCommand(new NickCommand(storage));
-        getEventRegistry().registerGlobal(PlayerChatEvent.class, chatListener::onPlayerChat);
+        getEventRegistry().registerGlobal(EventPriority.LAST, PlayerChatEvent.class, chatListener::onPlayerChat);
         getEventRegistry().registerGlobal(PlayerReadyEvent.class, playerListener::onPlayerReady);
     }
 
