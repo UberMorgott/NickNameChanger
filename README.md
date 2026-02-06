@@ -89,23 +89,62 @@ Set any `display` option to `false` to disable nicknames in that context.
 
 ## API for Developers
 
-Other plugins can read nickname data through the `NicknameAPI` class:
+Other plugins can read nickname data through the `NicknameAPI` class (`com.nickname.plugin.api.NicknameAPI`).
+
+Add NickNameChanger as a `compileOnly` dependency in your `build.gradle.kts`:
+
+```kotlin
+compileOnly(files("libs/NickNameChanger-0.0.9.jar"))
+```
+
+### Methods
+
+#### `getNickname(UUID uuid): String?`
+
+Returns the raw nickname string with markup tags (e.g. `<color:#FF5555>Steve</color>`), or `null` if the player has no nickname.
 
 ```java
-import com.nickname.plugin.api.NicknameAPI;
-
-// Get the formatted nickname (with colors/styles)
-Message nickname = NicknameAPI.getNickname(player);
-
-// Get the full display name (prefix + nick + suffix)
-Message displayName = NicknameAPI.getDisplayName(player);
-
-// Check if a player has a custom nickname
-boolean hasNick = NicknameAPI.hasNickname(player);
-
-// Get the original username
-String original = NicknameAPI.getOriginalUsername(player);
+String nick = NicknameAPI.getNickname(playerUuid);
+if (nick != null) {
+    System.out.println("Player has nickname: " + nick);
+}
 ```
+
+#### `getDisplayName(UUID uuid, String defaultName): String`
+
+Returns the player's nickname if set, otherwise returns `defaultName`. Never returns `null`.
+
+```java
+String name = NicknameAPI.getDisplayName(playerUuid, player.getUsername());
+// "name" is always a valid string — either the nickname or the fallback
+```
+
+#### `hasNickname(UUID uuid): boolean`
+
+Returns `true` if the player has a custom nickname set.
+
+```java
+if (NicknameAPI.hasNickname(playerUuid)) {
+    // player is using a custom nickname
+}
+```
+
+#### `getOriginalUsername(UUID uuid): String?`
+
+Returns the player's real username before the nickname was set, or `null` if unknown.
+
+```java
+String original = NicknameAPI.getOriginalUsername(playerUuid);
+// useful for logging, moderation, etc.
+```
+
+### Notes
+
+- All methods are **static** — no instance needed
+- All methods are **thread-safe**
+- The API is read-only — nicknames can only be set through `/nick` command or the UI
+- If NickNameChanger is not loaded, all methods return `null` / `false` / `defaultName` safely
+- Nickname strings may contain markup: `<color:...>`, `<gradient:...>`, `<b>`, `<i>`, `<u>`
 
 ## Compatibility
 

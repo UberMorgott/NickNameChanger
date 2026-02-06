@@ -89,23 +89,62 @@
 
 ## API для разработчиков
 
-Другие плагины могут читать данные никнеймов через класс `NicknameAPI`:
+Другие плагины могут читать данные никнеймов через класс `NicknameAPI` (`com.nickname.plugin.api.NicknameAPI`).
+
+Добавьте NickNameChanger как `compileOnly` зависимость в `build.gradle.kts`:
+
+```kotlin
+compileOnly(files("libs/NickNameChanger-0.0.9.jar"))
+```
+
+### Методы
+
+#### `getNickname(UUID uuid): String?`
+
+Возвращает сырую строку никнейма с разметкой (например `<color:#FF5555>Steve</color>`) или `null`, если никнейм не установлен.
 
 ```java
-import com.nickname.plugin.api.NicknameAPI;
-
-// Получить отформатированный никнейм (с цветами/стилями)
-Message nickname = NicknameAPI.getNickname(player);
-
-// Получить полное отображаемое имя (префикс + ник + суффикс)
-Message displayName = NicknameAPI.getDisplayName(player);
-
-// Проверить, есть ли у игрока кастомный никнейм
-boolean hasNick = NicknameAPI.hasNickname(player);
-
-// Получить оригинальное имя пользователя
-String original = NicknameAPI.getOriginalUsername(player);
+String nick = NicknameAPI.getNickname(playerUuid);
+if (nick != null) {
+    System.out.println("У игрока есть никнейм: " + nick);
+}
 ```
+
+#### `getDisplayName(UUID uuid, String defaultName): String`
+
+Возвращает никнейм игрока или `defaultName`, если никнейм не установлен. Никогда не возвращает `null`.
+
+```java
+String name = NicknameAPI.getDisplayName(playerUuid, player.getUsername());
+// "name" всегда валидная строка — либо никнейм, либо fallback
+```
+
+#### `hasNickname(UUID uuid): boolean`
+
+Возвращает `true`, если у игрока установлен кастомный никнейм.
+
+```java
+if (NicknameAPI.hasNickname(playerUuid)) {
+    // игрок использует кастомный никнейм
+}
+```
+
+#### `getOriginalUsername(UUID uuid): String?`
+
+Возвращает оригинальное имя игрока до установки никнейма или `null`, если неизвестно.
+
+```java
+String original = NicknameAPI.getOriginalUsername(playerUuid);
+// полезно для логирования, модерации и т.д.
+```
+
+### Заметки
+
+- Все методы **статические** — экземпляр не нужен
+- Все методы **потокобезопасные**
+- API только для чтения — никнеймы устанавливаются только через `/nick` или UI
+- Если NickNameChanger не загружен, все методы безопасно возвращают `null` / `false` / `defaultName`
+- Строки никнеймов могут содержать разметку: `<color:...>`, `<gradient:...>`, `<b>`, `<i>`, `<u>`
 
 ## Совместимость
 
