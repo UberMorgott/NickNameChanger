@@ -4,7 +4,6 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.protocol.MaybeBool;
 
 import javax.annotation.Nonnull;
-import java.awt.Color;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -160,7 +159,7 @@ public final class MessageUtil {
             if (italic) ch.italic(true);
             ch.color(hex);
             if (underline) ch.getFormattedMessage().underlined = MaybeBool.True;
-            result.insert(ch);
+            result = result.insert(ch);
         }
         return result;
     }

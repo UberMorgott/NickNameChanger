@@ -13,13 +13,21 @@ public class LuckPermsHook {
 
     private static boolean initialized = false;
     private static volatile boolean available = false;
+    private static boolean configEnabled = true;
 
-    public static void init() {
+    public static void init(boolean enabled) {
+        configEnabled = enabled;
+        if (!enabled) {
+            initialized = true;
+            available = false;
+            System.out.println("[NicknameChanger] LuckPerms integration disabled in config.");
+            return;
+        }
         tryInit();
     }
 
     private static void tryInit() {
-        if (available) {
+        if (available || !configEnabled) {
             return;
         }
         try {

@@ -50,7 +50,12 @@ public class PluginConfig {
         if (Files.exists(configFile)) {
             try (Reader reader = Files.newBufferedReader(configFile)) {
                 PluginConfig cfg = GSON.fromJson(reader, PluginConfig.class);
-                if (cfg != null) return cfg;
+                if (cfg != null) {
+                    if (cfg.display == null) cfg.display = new DisplayConfig();
+                    if (cfg.integrations == null) cfg.integrations = new Integrations();
+                    if (cfg.integrations.luckperms == null) cfg.integrations.luckperms = new LuckPermsConfig();
+                    return cfg;
+                }
             } catch (IOException e) {
                 System.err.println("[NicknameChanger] Failed to load config: " + e.getMessage());
             }

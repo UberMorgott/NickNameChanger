@@ -84,7 +84,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             }
         }
 
-        this.currentNickname = stripColorTags(formatted);
+        this.currentNickname = MessageUtil.stripTags(formatted);
     }
 
     @Override
@@ -238,7 +238,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                     return;
                 }
                 case "reset" -> {
-                    // Reset settings without closing - just clear all formatting
+                    // Reset settings without closing - clear all formatting and reset nickname in storage
                     currentNickname = playerRef.getUsername();
                     currentColor = "";
                     isBold = false;
@@ -247,6 +247,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                     isGradient = false;
                     gradColor1 = "#FF5555";
                     gradColor2 = "#5555FF";
+                    resetNickname(ref, store);
                 }
                 case "cancel" -> {
                     playerComponent.getPageManager().setPage(ref, store, Page.None);
@@ -409,7 +410,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             LuckPermsHook.setDisplayName(uuid, formattedNickname);
         }
 
-        String plainName = stripColorTags(formattedNickname);
+        String plainName = MessageUtil.stripTags(formattedNickname);
 
         if (config.display.showOnNameplate) {
             Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
@@ -466,10 +467,6 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             Message.raw(Messages.get(playerRef, Messages.RESET_SUCCESS) + " ").color("#55FF55"),
             Message.raw(originalName).color("#FFFFFF")
         ));
-    }
-
-    private String stripColorTags(String input) {
-        return input.replaceAll("<[^>]+>", "").replaceAll("</[^>]+>", "");
     }
 
     public static class EventData {

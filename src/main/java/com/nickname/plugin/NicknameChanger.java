@@ -20,6 +20,7 @@ import java.nio.file.Path;
 public class NicknameChanger extends JavaPlugin {
 
     private NicknameStorage storage;
+    private PluginConfig config;
     private ChatListener chatListener;
     private PlayerListener playerListener;
 
@@ -30,7 +31,7 @@ public class NicknameChanger extends JavaPlugin {
     @Override
     protected void setup() {
         Path dataFolder = getDataDirectory();
-        PluginConfig config = PluginConfig.load(dataFolder);
+        this.config = PluginConfig.load(dataFolder);
 
         this.storage = new NicknameStorage(dataFolder);
         NicknameAPI.init(storage);
@@ -47,7 +48,7 @@ public class NicknameChanger extends JavaPlugin {
     protected void start() {
         // Initialize optional integrations after all plugins are enabled
         try {
-            LuckPermsHook.init();
+            LuckPermsHook.init(config.integrations.luckperms.enabled);
         } catch (NoClassDefFoundError e) {
             System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
         }

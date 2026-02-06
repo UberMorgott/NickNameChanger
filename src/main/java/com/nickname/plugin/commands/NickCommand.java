@@ -107,22 +107,6 @@ public class NickCommand extends AbstractCommand {
         }, world);
     }
 
-    private void showCurrentNickname(@Nonnull PlayerRef playerRef, @Nonnull UUID uuid, @Nonnull String username) {
-        String nickname = storage.getNickname(uuid);
-        if (nickname != null) {
-            playerRef.sendMessage(Message.join(
-                Message.raw(Messages.get(playerRef, Messages.CURRENT_NICKNAME) + " ").color("#AAAAAA"),
-                Message.raw(nickname).color("#FFFF55")
-            ));
-        } else {
-            playerRef.sendMessage(Message.join(
-                Message.raw(Messages.get(playerRef, Messages.CURRENT_NO_NICKNAME) + " ").color("#AAAAAA"),
-                Message.raw(username).color("#FFFFFF")
-            ));
-        }
-        playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.USAGE)).color("#AAAAAA"));
-    }
-
     private void openNicknameEditor(@Nonnull Player player, @Nonnull Ref<EntityStore> ref,
                                      @Nonnull Store<EntityStore> store, @Nonnull PlayerRef playerRef) {
         NicknameEditorPage editorPage = new NicknameEditorPage(storage, config, playerRef);
@@ -167,7 +151,7 @@ public class NickCommand extends AbstractCommand {
         }
 
         // Check length without color tags
-        String plainNickname = stripColorTags(nickname);
+        String plainNickname = MessageUtil.stripTags(nickname);
         if (plainNickname.length() < MIN_LENGTH) {
             playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MIN_LENGTH, "min", MIN_LENGTH)).color("#FF5555"));
             return;
@@ -213,7 +197,7 @@ public class NickCommand extends AbstractCommand {
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
 
         // Strip color tags for nameplate text (it doesn't support rich text)
-        String plainName = stripColorTags(displayName);
+        String plainName = MessageUtil.stripTags(displayName);
         nameplate.setText(plainName);
 
         // Update DisplayNameComponent (plain text only — nametag can't render per-char gradient Messages)
@@ -221,18 +205,12 @@ public class NickCommand extends AbstractCommand {
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 
-    @Nonnull
-    private String stripColorTags(@Nonnull String input) {
-        // Remove TinyMessage tags like <color:#FF0000>, <bold>, etc.
-        return input.replaceAll("<[^>]+>", "").replaceAll("</[^>]+>", "");
-    }
-
     private void updatePlayerList(@Nonnull PlayerRef playerRef, @Nonnull String displayName) {
         UUID uuid = playerRef.getUuid();
         UUID worldUuid = playerRef.getWorldUuid();
 
         // Strip color tags for player list (it may not support rich text)
-        String plainName = stripColorTags(displayName);
+        String plainName = MessageUtil.stripTags(displayName);
 
         // Remove player from list
         RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});

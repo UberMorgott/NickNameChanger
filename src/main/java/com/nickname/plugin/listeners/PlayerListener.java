@@ -60,7 +60,7 @@ public class PlayerListener {
     }
 
     private void updateNameplate(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull String displayName) {
-        String plainName = stripColorTags(displayName);
+        String plainName = MessageUtil.stripTags(displayName);
 
         // Update Nameplate component (text above head)
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
@@ -71,14 +71,10 @@ public class PlayerListener {
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 
-    private String stripColorTags(String input) {
-        return input.replaceAll("<[^>]+>", "").replaceAll("</[^>]+>", "");
-    }
-
     private void updatePlayerList(PlayerRef playerRef, String displayName) {
         UUID uuid = playerRef.getUuid();
         UUID worldUuid = playerRef.getWorldUuid();
-        String plainName = stripColorTags(displayName);
+        String plainName = MessageUtil.stripTags(displayName);
 
         // Remove player from list
         RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});

@@ -2,9 +2,9 @@ package com.nickname.plugin.storage;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -16,8 +16,8 @@ import java.lang.reflect.Type;
 public class NicknameStorage {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private final Map<UUID, String> nicknames = new ConcurrentHashMap<>();
-    private final Map<UUID, String> originalUsernames = new ConcurrentHashMap<>();
+    private final Map<UUID, String> nicknames = new HashMap<>();
+    private final Map<UUID, String> originalUsernames = new HashMap<>();
     private final Path storageFile;
     private final Path originalsFile;
 
@@ -31,7 +31,7 @@ public class NicknameStorage {
         return nicknames.get(uuid);
     }
 
-    public void setNickname(UUID uuid, String nickname) {
+    public synchronized void setNickname(UUID uuid, String nickname) {
         if (nickname == null || nickname.isEmpty()) {
             nicknames.remove(uuid);
         } else {
@@ -40,13 +40,13 @@ public class NicknameStorage {
         save();
     }
 
-    public void removeNickname(UUID uuid) {
+    public synchronized void removeNickname(UUID uuid) {
         nicknames.remove(uuid);
         originalUsernames.remove(uuid);
         save();
     }
 
-    public void setOriginalUsername(UUID uuid, String username) {
+    public synchronized void setOriginalUsername(UUID uuid, String username) {
         if (!originalUsernames.containsKey(uuid)) {
             originalUsernames.put(uuid, username);
             save();
@@ -104,12 +104,12 @@ public class NicknameStorage {
         }
     }
 
-    private void save() {
+    private synchronized void save() {
         try {
             Files.createDirectories(storageFile.getParent());
 
             // Save nicknames
-            Map<String, String> toSave = new ConcurrentHashMap<>();
+            Map<String, String> toSave = new HashMap<>();
             for (Map.Entry<UUID, String> entry : nicknames.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }
@@ -118,7 +118,7 @@ public class NicknameStorage {
             }
 
             // Save original usernames
-            Map<String, String> originalsToSave = new ConcurrentHashMap<>();
+            Map<String, String> originalsToSave = new HashMap<>();
             for (Map.Entry<UUID, String> entry : originalUsernames.entrySet()) {
                 originalsToSave.put(entry.getKey().toString(), entry.getValue());
             }
