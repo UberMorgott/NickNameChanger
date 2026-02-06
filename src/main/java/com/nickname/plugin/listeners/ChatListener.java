@@ -29,14 +29,24 @@ public class ChatListener {
         PlayerRef sender = event.getSender();
         UUID senderUuid = sender.getUuid();
         String originalName = sender.getUsername();
-        String displayName = config.display.showInChat
-                ? storage.getDisplayName(senderUuid, originalName) : originalName;
 
+        boolean hasNickname = config.display.showInChat && storage.hasNickname(senderUuid);
+        boolean hasLuckPerms = LuckPermsHook.isAvailable();
+
+        // Only replace the formatter when we have something to contribute.
+        // This preserves formatting set by other chat plugins (e.g. EtherealPerms).
+        if (!hasNickname && !hasLuckPerms) {
+            String content = event.getContent();
+            return CompletableFuture.completedFuture(content != null ? content : "");
+        }
+
+        String displayName = hasNickname
+                ? storage.getDisplayName(senderUuid, originalName) : originalName;
         final String safeName = displayName != null ? displayName : originalName;
 
-        final String prefix = (LuckPermsHook.isAvailable() && config.integrations.luckperms.showPrefix)
+        final String prefix = (hasLuckPerms && config.integrations.luckperms.showPrefix)
                 ? LuckPermsHook.getPrefix(senderUuid) : null;
-        final String suffix = (LuckPermsHook.isAvailable() && config.integrations.luckperms.showSuffix)
+        final String suffix = (hasLuckPerms && config.integrations.luckperms.showSuffix)
                 ? LuckPermsHook.getSuffix(senderUuid) : null;
 
         event.setFormatter((playerRef, message) -> {
