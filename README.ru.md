@@ -17,7 +17,9 @@
 - **Табличка над головой** — Имя над персонажем
 - **Карта** — Имя на карте мира
 - **Таб-лист** — Никнейм в списке игроков
-- **LuckPerms** — Опциональная интеграция для совместимости с форматированием чата
+- **Конфигурация** — Настройка отображения никнейма через `config.json`
+- **LuckPerms** — Префикс/суффикс в чате с поддержкой hex-цветов (`<#RRGGBB>`)
+- **API** — Публичный API для чтения никнеймов другими плагинами
 
 ## Команды
 
@@ -61,12 +63,59 @@
 }
 ```
 
-## Опциональные зависимости
+## Конфигурация
 
-- **[LuckPerms](https://luckperms.net/)** — Если установлен:
+Плагин создаёт `config.json` в папке данных при первом запуске. Можно настроить, где отображается никнейм:
+
+```json
+{
+  "chatFormat": "{prefix}<{username}>{suffix} {message}",
+  "display": {
+    "showInChat": true,
+    "showOnNameplate": true,
+    "showInTabList": true
+  },
+  "integrations": {
+    "luckperms": {
+      "enabled": true,
+      "showPrefix": true,
+      "showSuffix": true
+    }
+  }
+}
+```
+
+Установите любую опцию `display` в `false`, чтобы отключить никнейм в этом контексте.
+
+## API для разработчиков
+
+Другие плагины могут читать данные никнеймов через класс `NicknameAPI`:
+
+```java
+import com.nickname.plugin.api.NicknameAPI;
+
+// Получить отформатированный никнейм (с цветами/стилями)
+Message nickname = NicknameAPI.getNickname(player);
+
+// Получить полное отображаемое имя (префикс + ник + суффикс)
+Message displayName = NicknameAPI.getDisplayName(player);
+
+// Проверить, есть ли у игрока кастомный никнейм
+boolean hasNick = NicknameAPI.hasNickname(player);
+
+// Получить оригинальное имя пользователя
+String original = NicknameAPI.getOriginalUsername(player);
+```
+
+## Совместимость
+
+- **[LuckPerms](https://luckperms.net/)** — Полная поддержка:
   - Никнеймы синхронизируются с мета-значением `display-name` в LuckPerms
   - В чате отображаются prefix/suffix из LuckPerms рядом с никнеймом
+  - Hex-цвета в префиксах (`<#RRGGBB>`) полностью поддерживаются
   - Правами можно управлять через LuckPerms
+- **EtherealPerms** — Совместим. Плагин сохраняет форматирование чата других плагинов, если у игрока нет никнейма.
+- **Другие чат-плагины** — NickNameChanger перехватывает форматирование только для игроков с активным никнеймом или интеграцией LuckPerms.
 
 ## Ограничения
 

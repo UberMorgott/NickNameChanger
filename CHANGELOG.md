@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.8] - 2026-02-06
+
+### Added
+- **Display configuration** — `display.showInChat`, `display.showOnNameplate`, `display.showInTabList` options in `config.json`
+- **NicknameAPI** — Public API for other plugins: `getNickname()`, `getDisplayName()`, `hasNickname()`, `getOriginalUsername()`
+
+### Fixed
+- **LuckPerms hex colors** — Short hex format `<#XXXXXX>` in prefixes/suffixes now parsed correctly
+- **Gradient nametag** — Nametags no longer disappear when using gradient nicknames (uses plain text for DisplayNameComponent)
+- **EtherealPerms compatibility** — Chat formatter is only replaced when player has a nickname or LuckPerms is active
+- **UI Reset button** — Now properly calls `resetNickname()` instead of only resetting UI state
+- **Thread safety** — All NicknameStorage methods synchronized, volatile fields in LuckPermsHook
+- **Null safety** — Gson deserialization handles missing nested config objects
+- **Gradient builder** — Fixed `result = result.insert(ch)` in `buildGradient()`
+
 ## [0.0.7] - 2026-02-02
 
 ### Added
