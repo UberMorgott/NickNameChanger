@@ -14,6 +14,7 @@ import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
 import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.util.MessageUtil;
+import com.nickname.plugin.util.PlayerRefUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 
@@ -41,6 +42,10 @@ public class PlayerListener {
 
         String nickname = storage.getNickname(uuid);
         if (nickname != null) {
+            // Update PlayerRef.username so map markers and server player list use the nickname
+            String plainName = MessageUtil.stripTags(nickname);
+            PlayerRefUtil.setUsername(playerRef, plainName);
+
             // Apply nickname to nameplate (above head)
             if (config.display.showOnNameplate) {
                 updateNameplate(ref, store, nickname);

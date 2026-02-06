@@ -20,6 +20,7 @@ import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
 import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.util.MessageUtil;
+import com.nickname.plugin.util.PlayerRefUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 import com.nickname.plugin.ui.NicknameEditorPage;
@@ -123,6 +124,9 @@ public class NickCommand extends AbstractCommand {
 
             storage.removeNickname(uuid);
 
+            // Restore PlayerRef.username to original
+            PlayerRefUtil.setUsername(playerRef, originalUsername);
+
             // Remove nickname from LuckPerms if available
             if (LuckPermsHook.isAvailable()) {
                 LuckPermsHook.removeDisplayName(uuid);
@@ -170,6 +174,10 @@ public class NickCommand extends AbstractCommand {
         // Store original username for reset
         storage.setNickname(uuid, filtered);
         storage.setOriginalUsername(uuid, username);
+
+        // Update PlayerRef.username so map markers and server player list use the nickname
+        String plainName = MessageUtil.stripTags(filtered);
+        PlayerRefUtil.setUsername(playerRef, plainName);
 
         // Sync nickname to LuckPerms if available (for chat formatting compatibility)
         if (LuckPermsHook.isAvailable()) {

@@ -13,6 +13,7 @@ import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.listeners.ChatListener;
 import com.nickname.plugin.listeners.PlayerListener;
 import com.nickname.plugin.storage.NicknameStorage;
+import com.nickname.plugin.util.PlayerRefUtil;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
@@ -32,6 +33,7 @@ public class NicknameChanger extends JavaPlugin {
     protected void setup() {
         Path dataFolder = getDataDirectory();
         this.config = PluginConfig.load(dataFolder);
+        PlayerRefUtil.init();
 
         this.storage = new NicknameStorage(dataFolder);
         NicknameAPI.init(storage);

@@ -26,6 +26,7 @@ import com.nickname.plugin.commands.NickCommand;
 import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.util.MessageUtil;
+import com.nickname.plugin.util.PlayerRefUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 
@@ -402,15 +403,18 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             formattedNickname = buildFormattedNickname();
         }
 
-        storage.setOriginalUsername(uuid, playerRef.getUsername());
+        storage.setOriginalUsername(uuid, storage.getOriginalUsername(uuid) != null ? storage.getOriginalUsername(uuid) : playerRef.getUsername());
         storage.setNickname(uuid, formattedNickname);
+
+        String plainName = MessageUtil.stripTags(formattedNickname);
+
+        // Update PlayerRef.username so map markers and server player list use the nickname
+        PlayerRefUtil.setUsername(playerRef, plainName);
 
         // Sync nickname to LuckPerms if available (for chat formatting compatibility)
         if (LuckPermsHook.isAvailable()) {
             LuckPermsHook.setDisplayName(uuid, formattedNickname);
         }
-
-        String plainName = MessageUtil.stripTags(formattedNickname);
 
         if (config.display.showOnNameplate) {
             Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
@@ -444,6 +448,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         }
 
         storage.removeNickname(uuid);
+
+        // Restore PlayerRef.username to original
+        PlayerRefUtil.setUsername(playerRef, originalName);
 
         // Remove nickname from LuckPerms if available
         if (LuckPermsHook.isAvailable()) {

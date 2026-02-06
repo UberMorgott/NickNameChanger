@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.9] - 2026-02-06
+
+### Fixed
+- **Tab list with LuckPerms** — Other players now correctly see nicknames in the player list when LuckPerms is installed
+- **Map/minimap** — Nicknames now display on the world map for all players
+
+### Technical
+- Added `PlayerRefUtil` — modifies `PlayerRef.username` via reflection so all server systems (map markers, player list, LuckPerms sync) use the nickname natively
+
 ## [0.0.8] - 2026-02-06
 
 ### Added
