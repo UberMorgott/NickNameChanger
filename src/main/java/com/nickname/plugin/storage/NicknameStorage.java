@@ -27,7 +27,7 @@ public class NicknameStorage {
         load();
     }
 
-    public String getNickname(UUID uuid) {
+    public synchronized String getNickname(UUID uuid) {
         return nicknames.get(uuid);
     }
 
@@ -53,15 +53,15 @@ public class NicknameStorage {
         }
     }
 
-    public String getOriginalUsername(UUID uuid) {
+    public synchronized String getOriginalUsername(UUID uuid) {
         return originalUsernames.get(uuid);
     }
 
-    public boolean hasNickname(UUID uuid) {
+    public synchronized boolean hasNickname(UUID uuid) {
         return nicknames.containsKey(uuid);
     }
 
-    public String getDisplayName(UUID uuid, String defaultName) {
+    public synchronized String getDisplayName(UUID uuid, String defaultName) {
         String nickname = nicknames.get(uuid);
         return nickname != null ? nickname : defaultName;
     }

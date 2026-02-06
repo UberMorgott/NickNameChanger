@@ -11,9 +11,9 @@ import java.util.UUID;
  */
 public class LuckPermsHook {
 
-    private static boolean initialized = false;
+    private static volatile boolean initialized = false;
     private static volatile boolean available = false;
-    private static boolean configEnabled = true;
+    private static volatile boolean configEnabled = true;
 
     public static void init(boolean enabled) {
         configEnabled = enabled;
