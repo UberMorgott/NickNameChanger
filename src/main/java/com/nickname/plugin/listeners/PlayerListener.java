@@ -12,6 +12,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
+import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
@@ -22,9 +23,11 @@ import java.util.UUID;
 public class PlayerListener {
 
     private final NicknameStorage storage;
+    private final PluginConfig config;
 
-    public PlayerListener(NicknameStorage storage) {
+    public PlayerListener(NicknameStorage storage, PluginConfig config) {
         this.storage = storage;
+        this.config = config;
     }
 
     public void onPlayerReady(@Nonnull PlayerReadyEvent event) {
@@ -39,10 +42,14 @@ public class PlayerListener {
         String nickname = storage.getNickname(uuid);
         if (nickname != null) {
             // Apply nickname to nameplate (above head)
-            updateNameplate(ref, store, nickname);
+            if (config.display.showOnNameplate) {
+                updateNameplate(ref, store, nickname);
+            }
 
             // Update player list (inventory header, map, tab)
-            updatePlayerList(playerRef, nickname);
+            if (config.display.showInTabList) {
+                updatePlayerList(playerRef, nickname);
+            }
 
             playerRef.sendMessage(Message.join(
                 Message.raw(Messages.get(playerRef, Messages.WELCOME_NICKNAME) + " ").color("#55FF55"),

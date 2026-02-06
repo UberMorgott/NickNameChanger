@@ -23,6 +23,7 @@ import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
 import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.nickname.plugin.commands.NickCommand;
+import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
@@ -34,6 +35,7 @@ import java.util.UUID;
 public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPage.EventData> {
 
     private final NicknameStorage storage;
+    private final PluginConfig config;
     private String currentNickname;
     private String currentColor = "";
     private boolean isBold = false;
@@ -43,9 +45,10 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     private String gradColor1 = "#FF5555";
     private String gradColor2 = "#5555FF";
 
-    public NicknameEditorPage(@Nonnull NicknameStorage storage, @Nonnull PlayerRef playerRef) {
+    public NicknameEditorPage(@Nonnull NicknameStorage storage, @Nonnull PluginConfig config, @Nonnull PlayerRef playerRef) {
         super(playerRef, CustomPageLifetime.CanDismissOrCloseThroughInteraction, EventData.CODEC);
         this.storage = storage;
+        this.config = config;
 
         String existingNick = storage.getNickname(playerRef.getUuid());
         if (existingNick != null) {
@@ -407,19 +410,24 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         }
 
         String plainName = stripColorTags(formattedNickname);
-        Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
-        nameplate.setText(plainName);
 
-        // Plain text for DisplayNameComponent — nametag can't render per-char gradient Messages
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(plainName));
-        store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
+        if (config.display.showOnNameplate) {
+            Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
+            nameplate.setText(plainName);
 
-        UUID worldUuid = playerRef.getWorldUuid();
-        RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
-        Universe.get().broadcastPacket(removePacket);
-        ServerPlayerListPlayer playerListEntry = new ServerPlayerListPlayer(uuid, plainName, worldUuid, 0);
-        AddToServerPlayerList addPacket = new AddToServerPlayerList(new ServerPlayerListPlayer[]{playerListEntry});
-        Universe.get().broadcastPacket(addPacket);
+            // Plain text for DisplayNameComponent — nametag can't render per-char gradient Messages
+            DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(plainName));
+            store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
+        }
+
+        if (config.display.showInTabList) {
+            UUID worldUuid = playerRef.getWorldUuid();
+            RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
+            Universe.get().broadcastPacket(removePacket);
+            ServerPlayerListPlayer playerListEntry = new ServerPlayerListPlayer(uuid, plainName, worldUuid, 0);
+            AddToServerPlayerList addPacket = new AddToServerPlayerList(new ServerPlayerListPlayer[]{playerListEntry});
+            Universe.get().broadcastPacket(addPacket);
+        }
 
         playerRef.sendMessage(Message.join(
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),

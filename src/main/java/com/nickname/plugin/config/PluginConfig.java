@@ -14,7 +14,14 @@ public class PluginConfig {
     public String version = "0.0.7";
     public boolean debugMode = false;
     public String chatFormat = "{prefix}<{username}>{suffix} {message}";
+    public DisplayConfig display = new DisplayConfig();
     public Integrations integrations = new Integrations();
+
+    public static class DisplayConfig {
+        public boolean showInChat = true;
+        public boolean showOnNameplate = true;
+        public boolean showInTabList = true;
+    }
 
     public static class Integrations {
         public LuckPermsConfig luckperms = new LuckPermsConfig();

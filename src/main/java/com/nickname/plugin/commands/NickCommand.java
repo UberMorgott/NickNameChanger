@@ -17,6 +17,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.AddToServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.RemoveFromServerPlayerList;
 import com.hypixel.hytale.protocol.packets.interface_.ServerPlayerListPlayer;
+import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.util.MessageUtil;
 import com.nickname.plugin.i18n.Messages;
@@ -33,12 +34,14 @@ public class NickCommand extends AbstractCommand {
     public static final String PERM_FORMAT = "nickname.format";
 
     private final NicknameStorage storage;
+    private final PluginConfig config;
     private static final int MIN_LENGTH = 2;
     private static final int MAX_LENGTH = 32;
 
-    public NickCommand(NicknameStorage storage) {
+    public NickCommand(NicknameStorage storage, PluginConfig config) {
         super("nick", "Set your display nickname");
         this.storage = storage;
+        this.config = config;
         setAllowsExtraArguments(true);
     }
 
@@ -122,7 +125,7 @@ public class NickCommand extends AbstractCommand {
 
     private void openNicknameEditor(@Nonnull Player player, @Nonnull Ref<EntityStore> ref,
                                      @Nonnull Store<EntityStore> store, @Nonnull PlayerRef playerRef) {
-        NicknameEditorPage editorPage = new NicknameEditorPage(storage, playerRef);
+        NicknameEditorPage editorPage = new NicknameEditorPage(storage, config, playerRef);
         player.getPageManager().openCustomPage(ref, store, editorPage);
     }
 
@@ -190,10 +193,14 @@ public class NickCommand extends AbstractCommand {
         }
 
         // Update nameplate (above head)
-        updateNameplate(ref, store, filtered);
+        if (config.display.showOnNameplate) {
+            updateNameplate(ref, store, filtered);
+        }
 
         // Update player list (map, tab)
-        updatePlayerList(playerRef, filtered);
+        if (config.display.showInTabList) {
+            updatePlayerList(playerRef, filtered);
+        }
 
         playerRef.sendMessage(Message.join(
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),

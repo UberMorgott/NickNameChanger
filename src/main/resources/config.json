@@ -3,6 +3,11 @@
   "version": "0.0.7",
   "debugMode": false,
   "chatFormat": "{prefix}<{username}>{suffix} {message}",
+  "display": {
+    "showInChat": true,
+    "showOnNameplate": true,
+    "showInTabList": true
+  },
   "integrations": {
     "luckperms": {
       "enabled": true,

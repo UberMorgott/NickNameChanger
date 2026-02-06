@@ -29,7 +29,8 @@ public class ChatListener {
         PlayerRef sender = event.getSender();
         UUID senderUuid = sender.getUuid();
         String originalName = sender.getUsername();
-        String displayName = storage.getDisplayName(senderUuid, originalName);
+        String displayName = config.display.showInChat
+                ? storage.getDisplayName(senderUuid, originalName) : originalName;
 
         final String safeName = displayName != null ? displayName : originalName;
 

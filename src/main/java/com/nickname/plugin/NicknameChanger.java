@@ -34,9 +34,9 @@ public class NicknameChanger extends JavaPlugin {
         this.storage = new NicknameStorage(dataFolder);
 
         this.chatListener = new ChatListener(storage, config);
-        this.playerListener = new PlayerListener(storage);
+        this.playerListener = new PlayerListener(storage, config);
 
-        getCommandRegistry().registerCommand(new NickCommand(storage));
+        getCommandRegistry().registerCommand(new NickCommand(storage, config));
         getEventRegistry().registerGlobal(EventPriority.LAST, PlayerChatEvent.class, chatListener::onPlayerChat);
         getEventRegistry().registerGlobal(PlayerReadyEvent.class, playerListener::onPlayerReady);
     }
