@@ -6,6 +6,7 @@ import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 
+import com.nickname.plugin.api.NicknameAPI;
 import com.nickname.plugin.commands.NickCommand;
 import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
@@ -32,6 +33,7 @@ public class NicknameChanger extends JavaPlugin {
         PluginConfig config = PluginConfig.load(dataFolder);
 
         this.storage = new NicknameStorage(dataFolder);
+        NicknameAPI.init(storage);
 
         this.chatListener = new ChatListener(storage, config);
         this.playerListener = new PlayerListener(storage, config);
