@@ -16,6 +16,7 @@ public final class MessageUtil {
 
     private static final Pattern COLOR_PATTERN = Pattern.compile("<color:(#[0-9A-Fa-f]{6})>");
     private static final Pattern GRADIENT_PATTERN = Pattern.compile("<gradient:(#[0-9A-Fa-f]{6}):(#[0-9A-Fa-f]{6})>");
+    private static final Pattern SHORT_HEX_PATTERN = Pattern.compile("<(#[0-9A-Fa-f]{6})>");
 
     private MessageUtil() {}
 
@@ -26,6 +27,11 @@ public final class MessageUtil {
         boolean bold = input.contains("<b>") || input.contains("<bold>");
         boolean italic = input.contains("<i>") || input.contains("<italic>");
         boolean underline = input.contains("<u>") || input.contains("<underline>");
+
+        // Short hex format: <#XXXXXX> (used by LuckPerms per-character coloring)
+        if (SHORT_HEX_PATTERN.matcher(input).find() && !input.contains("<color:") && !input.contains("<gradient:")) {
+            return parseShortHex(input, bold, italic, underline);
+        }
 
         Matcher colorMatcher = COLOR_PATTERN.matcher(input);
         String color = colorMatcher.find() ? colorMatcher.group(1) : null;
@@ -89,6 +95,41 @@ public final class MessageUtil {
     @Nonnull
     public static String stripTags(@Nonnull String input) {
         return input.replaceAll("<[^>]+>", "").replaceAll("</[^>]+>", "");
+    }
+
+    /**
+     * Parses short hex format: {@code <#XXXXXX>text<#YYYYYY>text...}
+     * Each {@code <#HEX>} tag starts a new colored segment (used by LuckPerms prefixes).
+     */
+    @Nonnull
+    private static Message parseShortHex(String input, boolean bold, boolean italic, boolean underline) {
+        Message result = Message.empty();
+        Matcher m = SHORT_HEX_PATTERN.matcher(input);
+
+        String currentColor = null;
+        int lastEnd = 0;
+
+        while (m.find()) {
+            String before = input.substring(lastEnd, m.start());
+            if (!before.isEmpty()) {
+                String clean = stripTags(before);
+                if (!clean.isEmpty()) {
+                    result = result.insert(buildStyled(clean, currentColor, bold, italic, underline));
+                }
+            }
+            currentColor = m.group(1);
+            lastEnd = m.end();
+        }
+
+        String remaining = input.substring(lastEnd);
+        if (!remaining.isEmpty()) {
+            String clean = stripTags(remaining);
+            if (!clean.isEmpty()) {
+                result = result.insert(buildStyled(clean, currentColor, bold, italic, underline));
+            }
+        }
+
+        return result;
     }
 
     @Nonnull
