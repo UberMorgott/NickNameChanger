@@ -410,8 +410,8 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
         nameplate.setText(plainName);
 
-        Message displayMessage = MessageUtil.parse(formattedNickname);
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(displayMessage);
+        // Plain text for DisplayNameComponent — nametag can't render per-char gradient Messages
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(plainName));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
 
         UUID worldUuid = playerRef.getWorldUuid();

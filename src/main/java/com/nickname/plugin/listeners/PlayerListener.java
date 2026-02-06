@@ -53,12 +53,14 @@ public class PlayerListener {
     }
 
     private void updateNameplate(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull String displayName) {
+        String plainName = stripColorTags(displayName);
+
         // Update Nameplate component (text above head)
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
-        nameplate.setText(stripColorTags(displayName));
+        nameplate.setText(plainName);
 
-        // Update DisplayNameComponent
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(MessageUtil.parse(displayName));
+        // Update DisplayNameComponent (plain text only — nametag can't render per-char gradient Messages)
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(plainName));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 

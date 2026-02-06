@@ -209,8 +209,8 @@ public class NickCommand extends AbstractCommand {
         String plainName = stripColorTags(displayName);
         nameplate.setText(plainName);
 
-        // Update DisplayNameComponent
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(MessageUtil.parse(displayName));
+        // Update DisplayNameComponent (plain text only — nametag can't render per-char gradient Messages)
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(plainName));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 
