@@ -94,7 +94,7 @@
 Добавьте NickNameChanger как `compileOnly` зависимость в `build.gradle.kts`:
 
 ```kotlin
-compileOnly(files("libs/NickNameChanger-0.0.9.jar"))
+compileOnly(fileTree("libs") { include("NickNameChanger-*.jar") })
 ```
 
 ### Методы

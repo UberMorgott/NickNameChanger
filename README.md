@@ -94,7 +94,7 @@ Other plugins can read nickname data through the `NicknameAPI` class (`com.nickn
 Add NickNameChanger as a `compileOnly` dependency in your `build.gradle.kts`:
 
 ```kotlin
-compileOnly(files("libs/NickNameChanger-0.0.9.jar"))
+compileOnly(fileTree("libs") { include("NickNameChanger-*.jar") })
 ```
 
 ### Methods
