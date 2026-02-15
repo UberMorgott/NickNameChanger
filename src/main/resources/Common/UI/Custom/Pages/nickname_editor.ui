@@ -225,12 +225,17 @@ $C.@PageOverlay {
 
         $C.@TextButton #TabColor {
           Text: "> COLOR <";
-          Anchor: (Width: 218, Height: 26);
+          Anchor: (Width: 143, Height: 26);
         }
 
         $C.@TextButton #TabGradient {
           Text: "GRADIENT";
-          Anchor: (Width: 218, Height: 26, Left: 4);
+          Anchor: (Width: 143, Height: 26, Left: 4);
+        }
+
+        $C.@TextButton #TabMessage {
+          Text: "MESSAGE";
+          Anchor: (Width: 143, Height: 26, Left: 4);
         }
       }
 
@@ -352,6 +357,53 @@ $C.@PageOverlay {
           TextButton #GradPreset6 { Text: %nickname.ui.gold; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GoldGradBtnStyle; }
           TextButton #GradPreset7 { Text: %nickname.ui.ice; Anchor: (Width: 106, Height: 22, Left: 3); Style: @IceBtnStyle; }
           TextButton #GradPreset8 { Text: %nickname.ui.rainbow; Anchor: (Width: 106, Height: 22, Left: 3); Style: @RainbowBtnStyle; }
+        }
+      }
+
+      // === Message Color Content ===
+      Group #MessageSection {
+        LayoutMode: Top;
+        Visible: false;
+        Background: #1a2a3a(0.3);
+        Padding: (Left: 8, Right: 8, Top: 6, Bottom: 6);
+        Anchor: (Height: 178, Bottom: 4);
+
+        ColorPicker #MsgColorPicker {
+          Anchor: (Height: 90, Bottom: 4);
+          Style: $C.@DefaultColorPickerStyle;
+        }
+
+        // Row 1
+        Group {
+          LayoutMode: Left;
+          Anchor: (Height: 24, Bottom: 3);
+
+          TextButton #MsgColorRed { Text: %nickname.ui.red; Anchor: (Width: 106, Height: 22); Style: @RedBtnStyle; }
+          TextButton #MsgColorOrange { Text: %nickname.ui.orange; Anchor: (Width: 106, Height: 22, Left: 3); Style: @OrangeBtnStyle; }
+          TextButton #MsgColorYellow { Text: %nickname.ui.yellow; Anchor: (Width: 106, Height: 22, Left: 3); Style: @YellowBtnStyle; }
+          TextButton #MsgColorGreen { Text: %nickname.ui.green; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GreenBtnStyle; }
+        }
+
+        // Row 2
+        Group {
+          LayoutMode: Left;
+          Anchor: (Height: 24, Bottom: 3);
+
+          TextButton #MsgColorAqua { Text: %nickname.ui.aqua; Anchor: (Width: 106, Height: 22); Style: @AquaBtnStyle; }
+          TextButton #MsgColorBlue { Text: %nickname.ui.blue; Anchor: (Width: 106, Height: 22, Left: 3); Style: @BlueBtnStyle; }
+          TextButton #MsgColorPurple { Text: %nickname.ui.purple; Anchor: (Width: 106, Height: 22, Left: 3); Style: @PurpleBtnStyle; }
+          TextButton #MsgColorPink { Text: %nickname.ui.pink; Anchor: (Width: 106, Height: 22, Left: 3); Style: @PinkBtnStyle; }
+        }
+
+        // Row 3
+        Group {
+          LayoutMode: Left;
+          Anchor: (Height: 24);
+
+          TextButton #MsgColorWhite { Text: %nickname.ui.white; Anchor: (Width: 106, Height: 22); Style: @WhiteBtnStyle; }
+          TextButton #MsgColorGold { Text: %nickname.ui.gold; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GoldBtnStyle; }
+          TextButton #MsgColorGray { Text: %nickname.ui.gray; Anchor: (Width: 106, Height: 22, Left: 3); Style: @GrayBtnStyle; }
+          TextButton #MsgColorNone { Text: %nickname.ui.none; Anchor: (Width: 106, Height: 22, Left: 3); Style: @NoneBtnStyle; }
         }
       }
 

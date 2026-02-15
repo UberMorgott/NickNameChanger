@@ -43,8 +43,10 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     private boolean isItalic = false;
     private boolean isUnderline = false;
     private boolean isGradient = false;
+    private boolean isMessage = false;
     private String gradColor1 = "#FF5555";
     private String gradColor2 = "#5555FF";
+    private String msgColor = "";
 
     public NicknameEditorPage(@Nonnull NicknameStorage storage, @Nonnull PluginConfig config, @Nonnull PlayerRef playerRef) {
         super(playerRef, CustomPageLifetime.CanDismissOrCloseThroughInteraction, EventData.CODEC);
@@ -59,6 +61,12 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         }
         // Always start with COLOR tab, even if saved nickname has gradient
         this.isGradient = false;
+
+        // Load existing message color
+        String existingMsgColor = storage.getMessageColor(playerRef.getUuid());
+        if (existingMsgColor != null) {
+            this.msgColor = existingMsgColor;
+        }
     }
 
     private void parseExistingNickname(String formatted) {
@@ -109,6 +117,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         commandBuilder.set("#ItalicCheckbox #CheckBox.Value", isItalic);
         commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", isUnderline);
 
+        // Set message color picker
+        commandBuilder.set("#MsgColorPicker.Value", msgColor.isEmpty() ? "#FFFFFF" : msgColor);
+
         // Set tab states and visibility
         updateTabStyles(commandBuilder);
         updateSectionVisibility(commandBuilder);
@@ -131,6 +142,39 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "tab_color"), false);
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#TabGradient",
             com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "tab_gradient"), false);
+
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#TabMessage",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "tab_message"), false);
+
+        // Message color preset buttons
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorRed",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#FF5555"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorOrange",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#FFAA00"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorYellow",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#FFFF55"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorGreen",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#55FF55"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorAqua",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#55FFFF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorBlue",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#5555FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorPurple",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#AA55FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorPink",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#FF55FF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorWhite",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#FFFFFF"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorGold",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#FFD700"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorGray",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", "#AAAAAA"), false);
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#MsgColorNone",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color").append("Color", ""), false);
+
+        // Message color picker
+        eventBuilder.addEventBinding(CustomUIEventBindingType.ValueChanged, "#MsgColorPicker",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "msg_color_picker").append("@PickerColor", "#MsgColorPicker.Value"), false);
 
         // Main action buttons
         eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#CancelBtn",
@@ -196,22 +240,19 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     }
 
     private void updateTabStyles(@Nonnull UICommandBuilder commandBuilder) {
-        // Update tab button text to show active state (can't change Style dynamically)
         String colorText = Messages.get(playerRef, Messages.UI_TAB_COLOR);
         String gradientText = Messages.get(playerRef, Messages.UI_TAB_GRADIENT);
+        String messageText = Messages.get(playerRef, Messages.UI_TAB_MESSAGE);
 
-        if (isGradient) {
-            commandBuilder.set("#TabColor.Text", colorText);
-            commandBuilder.set("#TabGradient.Text", "> " + gradientText + " <");
-        } else {
-            commandBuilder.set("#TabColor.Text", "> " + colorText + " <");
-            commandBuilder.set("#TabGradient.Text", gradientText);
-        }
+        commandBuilder.set("#TabColor.Text", (!isGradient && !isMessage) ? "> " + colorText + " <" : colorText);
+        commandBuilder.set("#TabGradient.Text", isGradient ? "> " + gradientText + " <" : gradientText);
+        commandBuilder.set("#TabMessage.Text", isMessage ? "> " + messageText + " <" : messageText);
     }
 
     private void updateSectionVisibility(@Nonnull UICommandBuilder commandBuilder) {
-        commandBuilder.set("#SingleColorSection.Visible", !isGradient);
+        commandBuilder.set("#SingleColorSection.Visible", !isGradient && !isMessage);
         commandBuilder.set("#GradientSection.Visible", isGradient);
+        commandBuilder.set("#MessageSection.Visible", isMessage);
     }
 
     private void updatePreview(@Nonnull UICommandBuilder commandBuilder) {
@@ -234,8 +275,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                     // Just update preview, nickname already set above
                 }
                 case "apply" -> {
-                    applyNickname(ref, store);
-                    playerComponent.getPageManager().setPage(ref, store, Page.None);
+                    if (applyNickname(ref, store)) {
+                        playerComponent.getPageManager().setPage(ref, store, Page.None);
+                    }
                     return;
                 }
                 case "reset" -> {
@@ -246,8 +288,10 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                     isItalic = false;
                     isUnderline = false;
                     isGradient = false;
+                    isMessage = false;
                     gradColor1 = "#FF5555";
                     gradColor2 = "#5555FF";
+                    msgColor = "";
                     resetNickname(ref, store);
                 }
                 case "cancel" -> {
@@ -256,10 +300,26 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                 }
                 case "tab_color" -> {
                     isGradient = false;
+                    isMessage = false;
                 }
                 case "tab_gradient" -> {
                     isGradient = true;
+                    isMessage = false;
                     currentColor = "";
+                }
+                case "tab_message" -> {
+                    isGradient = false;
+                    isMessage = true;
+                }
+                case "msg_color" -> {
+                    if (data.color != null) {
+                        msgColor = data.color;
+                    }
+                }
+                case "msg_color_picker" -> {
+                    if (data.pickerColor != null && isValidHexColor(data.pickerColor)) {
+                        msgColor = normalizeHexColor(data.pickerColor);
+                    }
                 }
                 case "toggle_bold" -> isBold = data.checked;
                 case "toggle_italic" -> isItalic = data.checked;
@@ -311,6 +371,11 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             commandBuilder.set("#ColorPicker.Value", currentColor);
         }
 
+        // Update message color picker when preset selected
+        if ("msg_color".equals(data.action) && !msgColor.isEmpty()) {
+            commandBuilder.set("#MsgColorPicker.Value", msgColor);
+        }
+
         // Reset all UI elements when reset button pressed
         if ("reset".equals(data.action)) {
             commandBuilder.set("#NicknameInput.Value", currentNickname);
@@ -322,6 +387,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             commandBuilder.set("#BoldCheckbox #CheckBox.Value", false);
             commandBuilder.set("#ItalicCheckbox #CheckBox.Value", false);
             commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", false);
+            commandBuilder.set("#MsgColorPicker.Value", "#FFFFFF");
         }
 
         sendUpdate(commandBuilder);
@@ -391,8 +457,63 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         return !currentColor.isEmpty() || isGradient || isBold || isItalic || isUnderline;
     }
 
-    private void applyNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
+    private boolean isAllowedChar(char c) {
+        if (c == ' ' || c == '_' || c == '-' || c == '.' || c == '!' || c == '?') return true;
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) return true;
+        if (config.nicknames.allowCyrillic && Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CYRILLIC) return true;
+        if (config.nicknames.allowUnicode && Character.isLetterOrDigit(c)) return true;
+        return false;
+    }
+
+    private String filterPlainNickname(String nickname) {
+        StringBuilder filtered = new StringBuilder();
+        for (char c : nickname.toCharArray()) {
+            if (isAllowedChar(c)) {
+                filtered.append(c);
+            }
+        }
+        return filtered.toString().trim();
+    }
+
+    private boolean applyNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
         UUID uuid = playerRef.getUuid();
+
+        // Filter nickname text
+        String filteredName = filterPlainNickname(currentNickname);
+        if (filteredName.isEmpty()) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_INVALID)).color("#FF5555"));
+            return false;
+        }
+
+        // Check length
+        int minLen = config.nicknames.minLength;
+        int maxLen = config.nicknames.maxLength;
+        if (filteredName.length() < minLen) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MIN_LENGTH, "min", minLen)).color("#FF5555"));
+            return false;
+        }
+        if (filteredName.length() > maxLen) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MAX_LENGTH, "max", maxLen)).color("#FF5555"));
+            return false;
+        }
+
+        // Check banned words
+        String lowerName = filteredName.toLowerCase();
+        for (String banned : config.nicknames.bannedWords) {
+            if (lowerName.contains(banned.toLowerCase())) {
+                playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_BANNED_WORD)).color("#FF5555"));
+                return false;
+            }
+        }
+
+        // Check uniqueness
+        if (config.nicknames.uniqueNicknames && storage.isNicknameTaken(filteredName, uuid)) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_NICKNAME_TAKEN)).color("#FF5555"));
+            return false;
+        }
+
+        // Update currentNickname with filtered version
+        currentNickname = filteredName;
 
         // Strip formatting if player lacks nickname.format permission
         String formattedNickname;
@@ -408,15 +529,17 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
 
         String plainName = MessageUtil.stripTags(formattedNickname);
 
-        // Update PlayerRef.username so map markers and server player list use the nickname
-        PlayerRefUtil.setUsername(playerRef, plainName);
+        // Update PlayerRef.username for map markers (breaks other plugins' player lookups)
+        if (config.display.showOnMap) {
+            PlayerRefUtil.setUsername(playerRef, plainName);
+        }
 
         // Sync nickname to LuckPerms if available (for chat formatting compatibility)
         if (LuckPermsHook.isAvailable()) {
             LuckPermsHook.setDisplayName(uuid, formattedNickname);
         }
 
-        if (config.display.showOnNameplate) {
+        if (storage.isShowOnNameplate()) {
             Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
             nameplate.setText(plainName);
 
@@ -425,7 +548,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
         }
 
-        if (config.display.showInTabList) {
+        if (storage.isShowInTabList()) {
             UUID worldUuid = playerRef.getWorldUuid();
             RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
             Universe.get().broadcastPacket(removePacket);
@@ -434,10 +557,18 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             Universe.get().broadcastPacket(addPacket);
         }
 
+        // Save message color
+        if (msgColor.isEmpty()) {
+            storage.removeMessageColor(uuid);
+        } else {
+            storage.setMessageColor(uuid, msgColor);
+        }
+
         playerRef.sendMessage(Message.join(
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),
             MessageUtil.parse(formattedNickname)
         ));
+        return true;
     }
 
     private void resetNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
@@ -448,9 +579,12 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         }
 
         storage.removeNickname(uuid);
+        storage.removeMessageColor(uuid);
 
-        // Restore PlayerRef.username to original
-        PlayerRefUtil.setUsername(playerRef, originalName);
+        // Restore PlayerRef.username to original (only if map nicknames enabled)
+        if (config.display.showOnMap) {
+            PlayerRefUtil.setUsername(playerRef, originalName);
+        }
 
         // Remove nickname from LuckPerms if available
         if (LuckPermsHook.isAvailable()) {

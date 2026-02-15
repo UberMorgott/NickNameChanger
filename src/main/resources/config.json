@@ -1,12 +1,21 @@
 {
   "pluginName": "NicknameChanger",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "debugMode": false,
   "chatFormat": "{prefix}<{username}>{suffix} {message}",
   "display": {
     "showInChat": true,
     "showOnNameplate": true,
-    "showInTabList": true
+    "showInTabList": true,
+    "showOnMap": false
+  },
+  "nicknames": {
+    "minLength": 2,
+    "maxLength": 32,
+    "allowCyrillic": true,
+    "allowUnicode": false,
+    "uniqueNicknames": true,
+    "bannedWords": ["admin", "moderator", "server", "owner"]
   },
   "integrations": {
     "luckperms": {

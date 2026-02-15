@@ -1,5 +1,8 @@
 package com.nickname.plugin.storage;
 
+import com.nickname.plugin.config.PluginConfig;
+import com.nickname.plugin.util.MessageUtil;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.HashMap;
@@ -18,12 +21,17 @@ public class NicknameStorage {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Map<UUID, String> nicknames = new HashMap<>();
     private final Map<UUID, String> originalUsernames = new HashMap<>();
+    private final Map<UUID, String> messageColors = new HashMap<>();
     private final Path storageFile;
     private final Path originalsFile;
+    private final Path messageColorsFile;
+    private final PluginConfig config;
 
-    public NicknameStorage(Path dataFolder) {
+    public NicknameStorage(Path dataFolder, PluginConfig config) {
         this.storageFile = dataFolder.resolve("nicknames.json");
         this.originalsFile = dataFolder.resolve("originals.json");
+        this.messageColorsFile = dataFolder.resolve("messagecolors.json");
+        this.config = config;
         load();
     }
 
@@ -61,9 +69,53 @@ public class NicknameStorage {
         return nicknames.containsKey(uuid);
     }
 
+    public synchronized boolean isNicknameTaken(String plainNickname, UUID excludePlayer) {
+        String lower = plainNickname.toLowerCase();
+        for (Map.Entry<UUID, String> entry : nicknames.entrySet()) {
+            if (entry.getKey().equals(excludePlayer)) continue;
+            String existing = MessageUtil.stripTags(entry.getValue()).toLowerCase();
+            if (existing.equals(lower)) return true;
+        }
+        return false;
+    }
+
     public synchronized String getDisplayName(UUID uuid, String defaultName) {
         String nickname = nicknames.get(uuid);
         return nickname != null ? nickname : defaultName;
+    }
+
+    // --- Message colors ---
+
+    public synchronized String getMessageColor(UUID uuid) {
+        return messageColors.get(uuid);
+    }
+
+    public synchronized void setMessageColor(UUID uuid, String color) {
+        if (color == null || color.isEmpty()) {
+            messageColors.remove(uuid);
+        } else {
+            messageColors.put(uuid, color);
+        }
+        save();
+    }
+
+    public synchronized void removeMessageColor(UUID uuid) {
+        messageColors.remove(uuid);
+        save();
+    }
+
+    // --- Global display settings (read from config) ---
+
+    public boolean isShowInChat() {
+        return config.display.showInChat;
+    }
+
+    public boolean isShowOnNameplate() {
+        return config.display.showOnNameplate;
+    }
+
+    public boolean isShowInTabList() {
+        return config.display.showInTabList;
     }
 
     private void load() {
@@ -82,6 +134,24 @@ public class NicknameStorage {
                 }
             } catch (IOException e) {
                 System.err.println("[NicknameChanger] Failed to load nicknames: " + e.getMessage());
+            }
+        }
+
+        // Load message colors
+        if (Files.exists(messageColorsFile)) {
+            try (Reader reader = Files.newBufferedReader(messageColorsFile)) {
+                Type type = new TypeToken<Map<String, String>>(){}.getType();
+                Map<String, String> loaded = GSON.fromJson(reader, type);
+                if (loaded != null) {
+                    for (Map.Entry<String, String> entry : loaded.entrySet()) {
+                        try {
+                            UUID uuid = UUID.fromString(entry.getKey());
+                            messageColors.put(uuid, entry.getValue());
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("[NicknameChanger] Failed to load message colors: " + e.getMessage());
             }
         }
 
@@ -124,6 +194,14 @@ public class NicknameStorage {
             }
             try (Writer writer = Files.newBufferedWriter(originalsFile)) {
                 GSON.toJson(originalsToSave, writer);
+            }
+            // Save message colors
+            Map<String, String> colorsToSave = new HashMap<>();
+            for (Map.Entry<UUID, String> entry : messageColors.entrySet()) {
+                colorsToSave.put(entry.getKey().toString(), entry.getValue());
+            }
+            try (Writer writer = Files.newBufferedWriter(messageColorsFile)) {
+                GSON.toJson(colorsToSave, writer);
             }
         } catch (IOException e) {
             System.err.println("[NicknameChanger] Failed to save data: " + e.getMessage());

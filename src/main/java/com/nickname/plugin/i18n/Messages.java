@@ -28,6 +28,11 @@ public final class Messages {
     public static final String RESET_SUCCESS = PREFIX + "reset.success";
     public static final String RESET_NO_NICKNAME = PREFIX + "reset.noNickname";
     public static final String SET_SUCCESS = PREFIX + "set.success";
+    public static final String ERROR_BANNED_WORD = PREFIX + "error.bannedWord";
+    public static final String ERROR_NICKNAME_TAKEN = PREFIX + "error.nicknameTaken";
+    public static final String MSGCOLOR_SET = PREFIX + "msgcolor.set";
+    public static final String MSGCOLOR_RESET = PREFIX + "msgcolor.reset";
+    public static final String MSGCOLOR_USAGE = PREFIX + "msgcolor.usage";
     public static final String WELCOME_NICKNAME = PREFIX + "welcome.nickname";
     public static final String WELCOME_RESET_HINT = PREFIX + "welcome.resetHint";
 
@@ -35,6 +40,18 @@ public final class Messages {
     public static final String UI_TITLE = PREFIX + "ui.title";
     public static final String UI_TAB_COLOR = PREFIX + "ui.tabColor";
     public static final String UI_TAB_GRADIENT = PREFIX + "ui.tabGradient";
+    public static final String UI_TAB_MESSAGE = PREFIX + "ui.tabMessage";
+
+    // Settings UI keys
+    public static final String UI_SETTINGS_TITLE = PREFIX + "ui.settings.title";
+    public static final String UI_SETTINGS_DESCRIPTION = PREFIX + "ui.settings.description";
+    public static final String UI_SETTINGS_DISPLAY_TITLE = PREFIX + "ui.settings.displayTitle";
+    public static final String UI_SETTINGS_SHOW_IN_CHAT = PREFIX + "ui.settings.showInChat";
+    public static final String UI_SETTINGS_SHOW_ON_NAMEPLATE = PREFIX + "ui.settings.showOnNameplate";
+    public static final String UI_SETTINGS_SHOW_IN_TAB_LIST = PREFIX + "ui.settings.showInTabList";
+    public static final String UI_SETTINGS_SAVE = PREFIX + "ui.settings.save";
+    public static final String SETTINGS_SAVED = PREFIX + "settings.saved";
+    public static final String ERROR_NO_SETTINGS_PERM = PREFIX + "error.noSettingsPermission";
 
     private Messages() {
         // Utility class

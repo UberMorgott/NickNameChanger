@@ -30,7 +30,7 @@ public class ChatListener {
         UUID senderUuid = sender.getUuid();
         String originalName = sender.getUsername();
 
-        boolean hasNickname = config.display.showInChat && storage.hasNickname(senderUuid);
+        boolean hasNickname = storage.isShowInChat() && storage.hasNickname(senderUuid);
         boolean hasLuckPerms = LuckPermsHook.isAvailable();
 
         // Only replace the formatter when we have something to contribute.
@@ -69,7 +69,12 @@ public class ChatListener {
                             result = result.insert(buildUsername(senderUuid, safeName));
                             break;
                         case "message":
-                            result = result.insert(Message.raw(message).color("#FFFFFF"));
+                            String msgColor = storage.getMessageColor(playerRef.getUuid());
+                            if (msgColor != null) {
+                                result = result.insert(buildMessage(message, msgColor));
+                            } else {
+                                result = result.insert(Message.raw(message).color("#FFFFFF"));
+                            }
                             break;
                     }
                 } else {
@@ -87,6 +92,17 @@ public class ChatListener {
 
         String content = event.getContent();
         return CompletableFuture.completedFuture(content != null ? content : "");
+    }
+
+    private Message buildMessage(String message, String colorSpec) {
+        if (colorSpec.startsWith("gradient:")) {
+            String[] parts = colorSpec.split(":");
+            if (parts.length == 3) {
+                return MessageUtil.parse("<gradient:" + parts[1] + ":" + parts[2] + ">" + message + "</gradient>");
+            }
+        }
+        // Solid color
+        return Message.raw(message).color(colorSpec);
     }
 
     private Message buildUsername(UUID uuid, String name) {

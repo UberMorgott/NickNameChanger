@@ -42,17 +42,20 @@ public class PlayerListener {
 
         String nickname = storage.getNickname(uuid);
         if (nickname != null) {
-            // Update PlayerRef.username so map markers and server player list use the nickname
             String plainName = MessageUtil.stripTags(nickname);
-            PlayerRefUtil.setUsername(playerRef, plainName);
+
+            // Update PlayerRef.username for map markers (breaks other plugins' player lookups)
+            if (config.display.showOnMap) {
+                PlayerRefUtil.setUsername(playerRef, plainName);
+            }
 
             // Apply nickname to nameplate (above head)
-            if (config.display.showOnNameplate) {
+            if (storage.isShowOnNameplate()) {
                 updateNameplate(ref, store, nickname);
             }
 
             // Update player list (inventory header, map, tab)
-            if (config.display.showInTabList) {
+            if (storage.isShowInTabList()) {
                 updatePlayerList(playerRef, nickname);
             }
 

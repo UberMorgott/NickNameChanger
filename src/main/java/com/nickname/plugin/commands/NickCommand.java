@@ -24,6 +24,7 @@ import com.nickname.plugin.util.PlayerRefUtil;
 import com.nickname.plugin.i18n.Messages;
 import com.nickname.plugin.storage.NicknameStorage;
 import com.nickname.plugin.ui.NicknameEditorPage;
+import com.nickname.plugin.ui.NicknameSettingsPage;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -33,11 +34,10 @@ public class NickCommand extends AbstractCommand {
 
     public static final String PERM_USE = "nickname.use";
     public static final String PERM_FORMAT = "nickname.format";
+    public static final String PERM_ADMIN = "nickname.admin";
 
     private final NicknameStorage storage;
     private final PluginConfig config;
-    private static final int MIN_LENGTH = 2;
-    private static final int MAX_LENGTH = 32;
 
     public NickCommand(NicknameStorage storage, PluginConfig config) {
         super("nick", "Set your display nickname");
@@ -98,9 +98,23 @@ public class NickCommand extends AbstractCommand {
 
             String arg = nickname.trim();
 
+            if (arg.equalsIgnoreCase("settings")) {
+                if (!PermissionsModule.get().hasPermission(playerUuid, PERM_ADMIN, false)) {
+                    playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_NO_SETTINGS_PERM)).color("#FF5555"));
+                    return;
+                }
+                openNicknameSettings(player, ref, store, playerRef);
+                return;
+            }
+
             if (arg.equalsIgnoreCase("reset") || arg.equalsIgnoreCase("clear") ||
                 arg.equalsIgnoreCase("off") || arg.equalsIgnoreCase("remove")) {
                 resetNickname(ref, store, playerRef, playerUuid, username);
+                return;
+            }
+
+            if (arg.toLowerCase().startsWith("msgcolor")) {
+                handleMsgColor(playerRef, playerUuid, arg);
                 return;
             }
 
@@ -114,6 +128,12 @@ public class NickCommand extends AbstractCommand {
         player.getPageManager().openCustomPage(ref, store, editorPage);
     }
 
+    private void openNicknameSettings(@Nonnull Player player, @Nonnull Ref<EntityStore> ref,
+                                       @Nonnull Store<EntityStore> store, @Nonnull PlayerRef playerRef) {
+        NicknameSettingsPage settingsPage = new NicknameSettingsPage(storage, config, playerRef);
+        player.getPageManager().openCustomPage(ref, store, settingsPage);
+    }
+
     private void resetNickname(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PlayerRef playerRef, @Nonnull UUID uuid, @Nonnull String username) {
         if (storage.hasNickname(uuid)) {
             // Get original username before clearing
@@ -124,8 +144,10 @@ public class NickCommand extends AbstractCommand {
 
             storage.removeNickname(uuid);
 
-            // Restore PlayerRef.username to original
-            PlayerRefUtil.setUsername(playerRef, originalUsername);
+            // Restore PlayerRef.username to original (only if map nicknames enabled)
+            if (config.display.showOnMap) {
+                PlayerRefUtil.setUsername(playerRef, originalUsername);
+            }
 
             // Remove nickname from LuckPerms if available
             if (LuckPermsHook.isAvailable()) {
@@ -156,12 +178,14 @@ public class NickCommand extends AbstractCommand {
 
         // Check length without color tags
         String plainNickname = MessageUtil.stripTags(nickname);
-        if (plainNickname.length() < MIN_LENGTH) {
-            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MIN_LENGTH, "min", MIN_LENGTH)).color("#FF5555"));
+        int minLen = config.nicknames.minLength;
+        int maxLen = config.nicknames.maxLength;
+        if (plainNickname.length() < minLen) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MIN_LENGTH, "min", minLen)).color("#FF5555"));
             return;
         }
-        if (plainNickname.length() > MAX_LENGTH) {
-            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MAX_LENGTH, "max", MAX_LENGTH)).color("#FF5555"));
+        if (plainNickname.length() > maxLen) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_MAX_LENGTH, "max", maxLen)).color("#FF5555"));
             return;
         }
 
@@ -171,13 +195,31 @@ public class NickCommand extends AbstractCommand {
             return;
         }
 
+        // Check banned words
+        String plainFiltered = MessageUtil.stripTags(filtered).toLowerCase();
+        for (String banned : config.nicknames.bannedWords) {
+            if (plainFiltered.contains(banned.toLowerCase())) {
+                playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_BANNED_WORD)).color("#FF5555"));
+                return;
+            }
+        }
+
+        // Check uniqueness
+        if (config.nicknames.uniqueNicknames && storage.isNicknameTaken(plainFiltered, uuid)) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_NICKNAME_TAKEN)).color("#FF5555"));
+            return;
+        }
+
         // Store original username for reset
         storage.setNickname(uuid, filtered);
         storage.setOriginalUsername(uuid, username);
 
-        // Update PlayerRef.username so map markers and server player list use the nickname
         String plainName = MessageUtil.stripTags(filtered);
-        PlayerRefUtil.setUsername(playerRef, plainName);
+
+        // Update PlayerRef.username for map markers (breaks other plugins' player lookups)
+        if (config.display.showOnMap) {
+            PlayerRefUtil.setUsername(playerRef, plainName);
+        }
 
         // Sync nickname to LuckPerms if available (for chat formatting compatibility)
         if (LuckPermsHook.isAvailable()) {
@@ -185,12 +227,12 @@ public class NickCommand extends AbstractCommand {
         }
 
         // Update nameplate (above head)
-        if (config.display.showOnNameplate) {
+        if (storage.isShowOnNameplate()) {
             updateNameplate(ref, store, filtered);
         }
 
         // Update player list (map, tab)
-        if (config.display.showInTabList) {
+        if (storage.isShowInTabList()) {
             updatePlayerList(playerRef, filtered);
         }
 
@@ -198,6 +240,54 @@ public class NickCommand extends AbstractCommand {
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),
             MessageUtil.parse(filtered)
         ));
+    }
+
+    private void handleMsgColor(@Nonnull PlayerRef playerRef, @Nonnull UUID uuid, @Nonnull String arg) {
+        // Check format permission
+        if (!PermissionsModule.get().hasPermission(uuid, PERM_FORMAT, true)) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.ERROR_NO_FORMAT_PERM)).color("#FF5555"));
+            return;
+        }
+
+        // Parse: "msgcolor #FF5555" or "msgcolor gradient:#FF5555:#5555FF" or "msgcolor reset"
+        String[] parts = arg.split("\\s+", 2);
+        if (parts.length < 2) {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_USAGE)).color("#FFFF55"));
+            return;
+        }
+
+        String value = parts[1].trim();
+
+        if (value.equalsIgnoreCase("reset") || value.equalsIgnoreCase("off") || value.equalsIgnoreCase("clear")) {
+            storage.removeMessageColor(uuid);
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_RESET)).color("#55FF55"));
+            return;
+        }
+
+        // Validate: #RRGGBB or gradient:#HEX1:#HEX2
+        if (value.matches("^#[0-9A-Fa-f]{6}$")) {
+            // Solid color
+            storage.setMessageColor(uuid, value.toUpperCase());
+            playerRef.sendMessage(Message.join(
+                Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_SET) + " ").color("#55FF55"),
+                Message.raw(value).color(value)
+            ));
+        } else if (value.toLowerCase().startsWith("gradient:")) {
+            // gradient:#HEX1:#HEX2
+            String[] gradParts = value.split(":");
+            if (gradParts.length == 3 && gradParts[1].matches("^#[0-9A-Fa-f]{6}$") && gradParts[2].matches("^#[0-9A-Fa-f]{6}$")) {
+                String stored = "gradient:" + gradParts[1].toUpperCase() + ":" + gradParts[2].toUpperCase();
+                storage.setMessageColor(uuid, stored);
+                playerRef.sendMessage(Message.join(
+                    Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_SET) + " ").color("#55FF55"),
+                    MessageUtil.parse("<gradient:" + gradParts[1] + ":" + gradParts[2] + ">Example text</gradient>")
+                ));
+            } else {
+                playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_USAGE)).color("#FFFF55"));
+            }
+        } else {
+            playerRef.sendMessage(Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_USAGE)).color("#FFFF55"));
+        }
     }
 
     private void updateNameplate(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull String displayName) {
@@ -244,6 +334,18 @@ public class NickCommand extends AbstractCommand {
         store.removeComponentIfExists(ref, DisplayNameComponent.getComponentType());
     }
 
+    private boolean isAllowedChar(char c) {
+        // Basic punctuation always allowed
+        if (c == ' ' || c == '_' || c == '-' || c == '.' || c == '!' || c == '?') return true;
+        // ASCII letters and digits always allowed
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) return true;
+        // Cyrillic
+        if (config.nicknames.allowCyrillic && Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CYRILLIC) return true;
+        // All other Unicode
+        if (config.nicknames.allowUnicode && Character.isLetterOrDigit(c)) return true;
+        return false;
+    }
+
     @Nonnull
     private String filterNickname(@Nonnull String nickname) {
         // Allow markup tags
@@ -253,13 +355,11 @@ public class NickCommand extends AbstractCommand {
 
         StringBuilder filtered = new StringBuilder();
         for (char c : nickname.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || c == ' ' || c == '_' || c == '-' ||
-                c == '.' || c == '!' || c == '?' || Character.isLetter(c)) {
+            if (isAllowedChar(c)) {
                 filtered.append(c);
             }
         }
-        String result = filtered.toString().trim();
-        return result != null ? result : "";
+        return filtered.toString().trim();
     }
 
     @Nonnull
@@ -282,13 +382,11 @@ public class NickCommand extends AbstractCommand {
                 filtered.append(c);
             } else {
                 // Outside a tag, filter normally
-                if (Character.isLetterOrDigit(c) || c == ' ' || c == '_' || c == '-' ||
-                    c == '.' || c == '!' || c == '?' || Character.isLetter(c)) {
+                if (isAllowedChar(c)) {
                     filtered.append(c);
                 }
             }
         }
-        String result = filtered.toString().trim();
-        return result != null ? result : "";
+        return filtered.toString().trim();
     }
 }
