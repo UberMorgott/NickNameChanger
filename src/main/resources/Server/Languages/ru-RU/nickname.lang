@@ -1,6 +1,6 @@
 # NickNameChanger Локализация - Русский (ru-RU)
 # Автор: Morgott
-# Версия: 0.0.2
+# Версия: 0.0.10
 
 # Команда
 command.description = Установить отображаемый никнейм
@@ -12,11 +12,13 @@ error.minLength = Никнейм должен быть минимум {min} си
 error.maxLength = Никнейм не может превышать {max} символов.
 error.invalid = Недопустимый никнейм.
 error.noFormatPermission = У вас нет прав на использование цветов и стилей.
+error.bannedWord = Этот никнейм содержит запрещённое слово.
+error.nicknameTaken = Этот никнейм уже занят.
 
 # Информация о текущем никнейме
 current.nickname = Ваш текущий никнейм:
 current.noNickname = Никнейм не установлен. Ваше имя:
-usage = Использование: /nick <имя> | /nick reset
+usage = Использование: /nick <имя> | /nick reset | /nick settings
 
 # Сообщения сброса
 reset.success = Никнейм сброшен на:
@@ -25,6 +27,11 @@ reset.noNickname = У вас нет установленного никнейм�
 # Сообщения установки
 set.success = Никнейм установлен:
 set.updated = Обновлено: Чат, Таб-лист, Карта, Табличка над головой
+
+# Цвет сообщений
+msgcolor.set = Цвет сообщений установлен:
+msgcolor.reset = Цвет сообщений сброшен.
+msgcolor.usage = Использование: /nick msgcolor <#HEX | gradient:#HEX1:#HEX2 | reset>
 
 # Приветственные сообщения (при входе)
 welcome.nickname = Добро пожаловать! Ваш никнейм:
@@ -40,6 +47,7 @@ ui.underline = Подчёркнутый
 ui.color = Цвет
 ui.tabColor = ЦВЕТ
 ui.tabGradient = ГРАДИЕНТ
+ui.tabMessage = СООБЩЕНИЕ
 ui.start = Начало
 ui.end = Конец
 ui.preview = Превью
@@ -67,3 +75,14 @@ ui.forest = Лес
 ui.violet = Фиалка
 ui.ice = Лёд
 ui.rainbow = Радуга
+
+# UI Настроек
+ui.settings.title = Настройки никнейма
+ui.settings.description = Выберите, где показывать ваш никнейм
+ui.settings.displayTitle = Параметры отображения
+ui.settings.showInChat = Показывать в чате
+ui.settings.showOnNameplate = Показывать над головой
+ui.settings.showInTabList = Показывать в таб-листе / на карте
+ui.settings.save = Сохранить
+settings.saved = Настройки сохранены!
+error.noSettingsPermission = Для изменения настроек отображения нужны права администратора.

@@ -59,8 +59,6 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         } else {
             this.currentNickname = playerRef.getUsername();
         }
-        // Always start with COLOR tab, even if saved nickname has gradient
-        this.isGradient = false;
 
         // Load existing message color
         String existingMsgColor = storage.getMessageColor(playerRef.getUuid());
@@ -240,13 +238,16 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     }
 
     private void updateTabStyles(@Nonnull UICommandBuilder commandBuilder) {
-        String colorText = Messages.get(playerRef, Messages.UI_TAB_COLOR);
-        String gradientText = Messages.get(playerRef, Messages.UI_TAB_GRADIENT);
-        String messageText = Messages.get(playerRef, Messages.UI_TAB_MESSAGE);
+        boolean isColor = !isGradient && !isMessage;
 
-        commandBuilder.set("#TabColor.Text", (!isGradient && !isMessage) ? "> " + colorText + " <" : colorText);
-        commandBuilder.set("#TabGradient.Text", isGradient ? "> " + gradientText + " <" : gradientText);
-        commandBuilder.set("#TabMessage.Text", isMessage ? "> " + messageText + " <" : messageText);
+        // Toggle highlight bars under tabs
+        commandBuilder.set("#TabColorHighlight.Visible", isColor);
+        commandBuilder.set("#TabGradientHighlight.Visible", isGradient);
+        commandBuilder.set("#TabMessageHighlight.Visible", isMessage);
+
+        commandBuilder.set("#TabColor.Text", Messages.get(playerRef, Messages.UI_TAB_COLOR));
+        commandBuilder.set("#TabGradient.Text", Messages.get(playerRef, Messages.UI_TAB_GRADIENT));
+        commandBuilder.set("#TabMessage.Text", Messages.get(playerRef, Messages.UI_TAB_MESSAGE));
     }
 
     private void updateSectionVisibility(@Nonnull UICommandBuilder commandBuilder) {
@@ -564,10 +565,19 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             storage.setMessageColor(uuid, msgColor);
         }
 
+        // Chat confirmation: nickname
         playerRef.sendMessage(Message.join(
             Message.raw(Messages.get(playerRef, Messages.SET_SUCCESS) + " ").color("#55FF55"),
             MessageUtil.parse(formattedNickname)
         ));
+
+        // Chat confirmation: message color
+        if (!msgColor.isEmpty()) {
+            playerRef.sendMessage(Message.join(
+                Message.raw(Messages.get(playerRef, Messages.MSGCOLOR_SET) + " ").color("#55FF55"),
+                Message.raw("Example").color(msgColor)
+            ));
+        }
         return true;
     }
 
@@ -579,6 +589,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         }
 
         storage.removeNickname(uuid);
+        storage.removeOriginalUsername(uuid);
         storage.removeMessageColor(uuid);
 
         // Restore PlayerRef.username to original (only if map nicknames enabled)

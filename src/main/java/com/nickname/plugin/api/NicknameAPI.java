@@ -66,4 +66,28 @@ public final class NicknameAPI {
         if (storage == null) return null;
         return storage.getOriginalUsername(uuid);
     }
+
+    /**
+     * Returns {@code true} if nicknames are currently shown in chat (global setting).
+     */
+    public static boolean isShowInChat() {
+        if (storage == null) return true;
+        return storage.isShowInChat();
+    }
+
+    /**
+     * Returns {@code true} if nicknames are currently shown on nameplates (global setting).
+     */
+    public static boolean isShowOnNameplate() {
+        if (storage == null) return true;
+        return storage.isShowOnNameplate();
+    }
+
+    /**
+     * Returns {@code true} if nicknames are currently shown in tab list / map (global setting).
+     */
+    public static boolean isShowInTabList() {
+        if (storage == null) return true;
+        return storage.isShowInTabList();
+    }
 }

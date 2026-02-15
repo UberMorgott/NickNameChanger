@@ -1,0 +1,88 @@
+# NickNameChanger Localização - Português Brasileiro (pt-BR)
+# Autor: Morgott
+# Versão: 0.0.10
+
+# Comando
+command.description = Definir seu apelido de exibição
+
+# Erros
+error.playersOnly = Este comando só pode ser usado por jogadores.
+error.notInWorld = Erro: Jogador não está no mundo.
+error.minLength = O apelido deve ter pelo menos {min} caracteres.
+error.maxLength = O apelido não pode exceder {max} caracteres.
+error.invalid = Apelido inválido.
+error.noFormatPermission = Você não tem permissão para usar cores e estilos.
+error.bannedWord = Este apelido contém uma palavra proibida.
+error.nicknameTaken = Este apelido já está em uso.
+
+# Informações do apelido atual
+current.nickname = Seu apelido atual:
+current.noNickname = Nenhum apelido definido. Seu nome:
+usage = Uso: /nick <nome> | /nick reset | /nick settings
+
+# Mensagens de reset
+reset.success = Apelido redefinido para:
+reset.noNickname = Você não tem um apelido.
+
+# Mensagens de definição
+set.success = Apelido definido:
+set.updated = Atualizado: Chat, Lista de jogadores, Mapa, Placa de nome
+
+# Cor da mensagem
+msgcolor.set = Cor da mensagem definida:
+msgcolor.reset = Cor da mensagem redefinida para padrão.
+msgcolor.usage = Uso: /nick msgcolor <#HEX | gradient:#HEX1:#HEX2 | reset>
+
+# Mensagens de boas-vindas (ao entrar)
+welcome.nickname = Bem-vindo! Seu apelido:
+welcome.resetHint = Use /nick reset para remover.
+
+# Editor de UI
+ui.title = Editor de Apelido
+ui.nickname = Apelido
+ui.textStyles = Estilos de Texto
+ui.bold = Negrito
+ui.italic = Itálico
+ui.underline = Sublinhado
+ui.color = Cor
+ui.tabColor = COR
+ui.tabGradient = GRADIENTE
+ui.tabMessage = MENSAGEM
+ui.start = Início
+ui.end = Fim
+ui.preview = Prévia
+ui.apply = Aplicar
+ui.reset = Redefinir
+ui.cancel = Cancelar
+# Nomes das cores
+ui.red = Vermelho
+ui.orange = Laranja
+ui.yellow = Amarelo
+ui.green = Verde
+ui.aqua = Ciano
+ui.blue = Azul
+ui.purple = Roxo
+ui.pink = Rosa
+ui.white = Branco
+ui.gray = Cinza
+ui.gold = Dourado
+ui.none = Nenhum
+# Nomes dos gradientes
+ui.sunset = Pôr do Sol
+ui.ocean = Oceano
+ui.fire = Fogo
+ui.forest = Floresta
+ui.violet = Violeta
+ui.ice = Gelo
+ui.rainbow = Arco-íris
+
+# UI de Configurações
+ui.settings.title = Configurações de Apelido
+ui.settings.description = Escolha onde seu apelido é exibido
+ui.settings.displayTitle = Opções de Exibição
+ui.settings.showInChat = Mostrar no Chat
+ui.settings.showOnNameplate = Mostrar na Placa de Nome
+ui.settings.showInTabList = Mostrar na Lista / Mapa
+ui.settings.save = Salvar
+settings.saved = Configurações salvas!
+error.noSettingsPermission = Você precisa de permissão de administrador para alterar as configurações.

@@ -1,0 +1,92 @@
+$C = "../Common.ui";
+
+@SectionLabelStyle = LabelStyle(
+  FontSize: 12,
+  TextColor: #93844c,
+  RenderBold: true,
+  RenderUppercase: true
+);
+
+@DescriptionLabelStyle = LabelStyle(
+  FontSize: 11,
+  TextColor: #AAAAAA,
+  HorizontalAlignment: Center
+);
+
+$C.@PageOverlay {
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 380, Height: 280);
+
+    #Title {
+      Label #TitleText {
+        Text: "Nickname Settings";
+        Style: (FontSize: 18, TextColor: #93844c, RenderUppercase: true, RenderBold: true, HorizontalAlignment: Center);
+        Anchor: (Top: 0, Left: 0, Right: 0, Bottom: 0);
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Left: 20, Right: 20, Top: 8);
+
+      // Description
+      Label #DescriptionText {
+        Text: %nickname.ui.settings.description;
+        Style: @DescriptionLabelStyle;
+        Anchor: (Bottom: 10);
+      }
+
+      // --- Separator ---
+      Group { Anchor: (Height: 1, Bottom: 8); Background: #93844c(0.3); }
+
+      // ===== DISPLAY OPTIONS =====
+      Label {
+        Text: %nickname.ui.settings.displayTitle;
+        Style: @SectionLabelStyle;
+        Anchor: (Bottom: 6);
+      }
+
+      // Checkboxes
+      Group {
+        LayoutMode: Top;
+        Anchor: (Bottom: 10);
+
+        $C.@CheckBoxWithLabel #ChatCheckbox {
+          @Text = %nickname.ui.settings.showInChat;
+          Anchor: (Bottom: 6);
+        }
+
+        $C.@CheckBoxWithLabel #NameplateCheckbox {
+          @Text = %nickname.ui.settings.showOnNameplate;
+          Anchor: (Bottom: 6);
+        }
+
+        $C.@CheckBoxWithLabel #TabListCheckbox {
+          @Text = %nickname.ui.settings.showInTabList;
+        }
+      }
+
+      // --- Separator ---
+      Group { Anchor: (Height: 1, Bottom: 10); Background: #93844c(0.3); }
+
+      // ===== BUTTONS =====
+      Group #ButtonSection {
+        LayoutMode: Left;
+        Anchor: (Height: 45);
+
+        $C.@TextButton #SaveBtn {
+          Text: %nickname.ui.settings.save;
+          Anchor: (Width: 160, Height: 42);
+        }
+
+        $C.@CancelTextButton #CancelBtn {
+          Text: %nickname.ui.cancel;
+          Anchor: (Width: 160, Height: 42, Left: 8);
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton #CloseBtn {}

@@ -20,22 +20,31 @@ import java.nio.file.Path;
 
 public class NicknameChanger extends JavaPlugin {
 
+    private static NicknameChanger instance;
+
     private NicknameStorage storage;
     private PluginConfig config;
+    private Path dataFolder;
     private ChatListener chatListener;
     private PlayerListener playerListener;
 
     public NicknameChanger(@Nonnull JavaPluginInit init) {
         super(init);
+        instance = this;
+    }
+
+    public static NicknameChanger getInstance() {
+        return instance;
     }
 
     @Override
     protected void setup() {
-        Path dataFolder = getDataDirectory();
+        this.dataFolder = getDataDirectory();
+        Path dataFolder = this.dataFolder;
         this.config = PluginConfig.load(dataFolder);
         PlayerRefUtil.init();
 
-        this.storage = new NicknameStorage(dataFolder);
+        this.storage = new NicknameStorage(dataFolder, config);
         NicknameAPI.init(storage);
 
         this.chatListener = new ChatListener(storage, config);
@@ -63,5 +72,13 @@ public class NicknameChanger extends JavaPlugin {
 
     public NicknameStorage getStorage() {
         return storage;
+    }
+
+    public PluginConfig getConfig() {
+        return config;
+    }
+
+    public Path getDataFolder() {
+        return dataFolder;
     }
 }

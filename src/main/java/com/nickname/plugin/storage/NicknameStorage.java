@@ -45,19 +45,24 @@ public class NicknameStorage {
         } else {
             nicknames.put(uuid, nickname);
         }
-        save();
+        saveNicknames();
     }
 
     public synchronized void removeNickname(UUID uuid) {
         nicknames.remove(uuid);
+        saveNicknames();
+        // Keep originalUsernames — needed if player sets nick again
+    }
+
+    public synchronized void removeOriginalUsername(UUID uuid) {
         originalUsernames.remove(uuid);
-        save();
+        saveOriginals();
     }
 
     public synchronized void setOriginalUsername(UUID uuid, String username) {
         if (!originalUsernames.containsKey(uuid)) {
             originalUsernames.put(uuid, username);
-            save();
+            saveOriginals();
         }
     }
 
@@ -96,12 +101,13 @@ public class NicknameStorage {
         } else {
             messageColors.put(uuid, color);
         }
-        save();
+        saveMessageColors();
     }
 
     public synchronized void removeMessageColor(UUID uuid) {
-        messageColors.remove(uuid);
-        save();
+        if (messageColors.remove(uuid) != null) {
+            saveMessageColors();
+        }
     }
 
     // --- Global display settings (read from config) ---
@@ -119,92 +125,52 @@ public class NicknameStorage {
     }
 
     private void load() {
-        // Load nicknames
-        if (Files.exists(storageFile)) {
-            try (Reader reader = Files.newBufferedReader(storageFile)) {
-                Type type = new TypeToken<Map<String, String>>(){}.getType();
-                Map<String, String> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    for (Map.Entry<String, String> entry : loaded.entrySet()) {
-                        try {
-                            UUID uuid = UUID.fromString(entry.getKey());
-                            nicknames.put(uuid, entry.getValue());
-                        } catch (IllegalArgumentException ignored) {}
-                    }
-                }
-            } catch (IOException e) {
-                System.err.println("[NicknameChanger] Failed to load nicknames: " + e.getMessage());
-            }
-        }
+        loadMap(storageFile, nicknames);
+        loadMap(messageColorsFile, messageColors);
+        loadMap(originalsFile, originalUsernames);
+    }
 
-        // Load message colors
-        if (Files.exists(messageColorsFile)) {
-            try (Reader reader = Files.newBufferedReader(messageColorsFile)) {
-                Type type = new TypeToken<Map<String, String>>(){}.getType();
-                Map<String, String> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    for (Map.Entry<String, String> entry : loaded.entrySet()) {
-                        try {
-                            UUID uuid = UUID.fromString(entry.getKey());
-                            messageColors.put(uuid, entry.getValue());
-                        } catch (IllegalArgumentException ignored) {}
-                    }
+    private void loadMap(Path file, Map<UUID, String> target) {
+        if (!Files.exists(file)) return;
+        try (Reader reader = Files.newBufferedReader(file)) {
+            Type type = new TypeToken<Map<String, String>>(){}.getType();
+            Map<String, String> loaded = GSON.fromJson(reader, type);
+            if (loaded != null) {
+                for (Map.Entry<String, String> entry : loaded.entrySet()) {
+                    try {
+                        target.put(UUID.fromString(entry.getKey()), entry.getValue());
+                    } catch (IllegalArgumentException ignored) {}
                 }
-            } catch (IOException e) {
-                System.err.println("[NicknameChanger] Failed to load message colors: " + e.getMessage());
             }
-        }
-
-        // Load original usernames
-        if (Files.exists(originalsFile)) {
-            try (Reader reader = Files.newBufferedReader(originalsFile)) {
-                Type type = new TypeToken<Map<String, String>>(){}.getType();
-                Map<String, String> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    for (Map.Entry<String, String> entry : loaded.entrySet()) {
-                        try {
-                            UUID uuid = UUID.fromString(entry.getKey());
-                            originalUsernames.put(uuid, entry.getValue());
-                        } catch (IllegalArgumentException ignored) {}
-                    }
-                }
-            } catch (IOException e) {
-                System.err.println("[NicknameChanger] Failed to load original usernames: " + e.getMessage());
-            }
+        } catch (IOException e) {
+            System.err.println("[NicknameChanger] Failed to load " + file.getFileName() + ": " + e.getMessage());
         }
     }
 
-    private synchronized void save() {
+    private synchronized void saveMap(Path file, Map<UUID, String> source) {
         try {
-            Files.createDirectories(storageFile.getParent());
-
-            // Save nicknames
+            Files.createDirectories(file.getParent());
             Map<String, String> toSave = new HashMap<>();
-            for (Map.Entry<UUID, String> entry : nicknames.entrySet()) {
+            for (Map.Entry<UUID, String> entry : source.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }
-            try (Writer writer = Files.newBufferedWriter(storageFile)) {
+            try (Writer writer = Files.newBufferedWriter(file)) {
                 GSON.toJson(toSave, writer);
             }
-
-            // Save original usernames
-            Map<String, String> originalsToSave = new HashMap<>();
-            for (Map.Entry<UUID, String> entry : originalUsernames.entrySet()) {
-                originalsToSave.put(entry.getKey().toString(), entry.getValue());
-            }
-            try (Writer writer = Files.newBufferedWriter(originalsFile)) {
-                GSON.toJson(originalsToSave, writer);
-            }
-            // Save message colors
-            Map<String, String> colorsToSave = new HashMap<>();
-            for (Map.Entry<UUID, String> entry : messageColors.entrySet()) {
-                colorsToSave.put(entry.getKey().toString(), entry.getValue());
-            }
-            try (Writer writer = Files.newBufferedWriter(messageColorsFile)) {
-                GSON.toJson(colorsToSave, writer);
-            }
         } catch (IOException e) {
-            System.err.println("[NicknameChanger] Failed to save data: " + e.getMessage());
+            System.err.println("[NicknameChanger] Failed to save " + file.getFileName() + ": " + e.getMessage());
         }
+    }
+
+    private void saveNicknames() {
+        saveMap(storageFile, nicknames);
+    }
+
+    private void saveOriginals() {
+        saveMap(originalsFile, originalUsernames);
+    }
+
+    private void saveMessageColors() {
+        saveMap(messageColorsFile, messageColors);
     }
 }

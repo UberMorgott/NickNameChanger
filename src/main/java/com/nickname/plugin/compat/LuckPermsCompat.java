@@ -37,25 +37,6 @@ public class LuckPermsCompat {
         return metaData.getSuffix();
     }
 
-    public static String getPrimaryGroup(UUID uuid) {
-        User user = luckPerms.getUserManager().getUser(uuid);
-        if (user == null) return null;
-        return user.getPrimaryGroup();
-    }
-
-    public static String getDisplayName(UUID uuid) {
-        User user = luckPerms.getUserManager().getUser(uuid);
-        if (user == null) return null;
-        CachedMetaData metaData = user.getCachedData().getMetaData();
-        return metaData.getMetaValue("display-name");
-    }
-
-    public static boolean hasPermission(UUID uuid, String permission) {
-        User user = luckPerms.getUserManager().getUser(uuid);
-        if (user == null) return false;
-        return user.getCachedData().getPermissionData().checkPermission(permission).asBoolean();
-    }
-
     public static void setDisplayName(UUID uuid, String displayName) {
         UserManager userManager = luckPerms.getUserManager();
         userManager.modifyUser(uuid, user -> {

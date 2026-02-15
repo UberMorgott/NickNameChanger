@@ -1,6 +1,6 @@
 # NickNameChanger Localization - English (en-US)
 # Author: Morgott
-# Version: 0.0.2
+# Version: 0.0.10
 
 # Command
 command.description = Set your display nickname
@@ -12,11 +12,13 @@ error.minLength = Nickname must be at least {min} characters.
 error.maxLength = Nickname cannot exceed {max} characters.
 error.invalid = Invalid nickname.
 error.noFormatPermission = You don't have permission to use colors and styles.
+error.bannedWord = This nickname contains a forbidden word.
+error.nicknameTaken = This nickname is already taken.
 
 # Current nickname info
 current.nickname = Your current nickname:
 current.noNickname = No nickname set. Your name:
-usage = Usage: /nick <name> | /nick reset
+usage = Usage: /nick <name> | /nick reset | /nick settings
 
 # Reset messages
 reset.success = Nickname reset to:
@@ -25,6 +27,11 @@ reset.noNickname = You don't have a nickname.
 # Set messages
 set.success = Nickname set to:
 set.updated = Updated: Chat, Tab list, Map, Nameplate
+
+# Message color
+msgcolor.set = Message color set:
+msgcolor.reset = Message color reset to default.
+msgcolor.usage = Usage: /nick msgcolor <#HEX | gradient:#HEX1:#HEX2 | reset>
 
 # Welcome messages (on join)
 welcome.nickname = Welcome! Your nickname:
@@ -40,6 +47,7 @@ ui.underline = Underline
 ui.color = Color
 ui.tabColor = COLOR
 ui.tabGradient = GRADIENT
+ui.tabMessage = MESSAGE
 ui.start = Start
 ui.end = End
 ui.preview = Preview
@@ -67,3 +75,14 @@ ui.forest = Forest
 ui.violet = Violet
 ui.ice = Ice
 ui.rainbow = Rainbow
+
+# Settings UI
+ui.settings.title = Nickname Settings
+ui.settings.description = Choose where your nickname is displayed
+ui.settings.displayTitle = Display Options
+ui.settings.showInChat = Show in Chat
+ui.settings.showOnNameplate = Show on Nameplate
+ui.settings.showInTabList = Show in Tab List / Map
+ui.settings.save = Save
+settings.saved = Settings saved!
+error.noSettingsPermission = You need admin permission to change display settings.

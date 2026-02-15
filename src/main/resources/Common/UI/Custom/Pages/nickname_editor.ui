@@ -221,21 +221,44 @@ $C.@PageOverlay {
       // Tab Bar
       Group #TabBar {
         LayoutMode: Left;
-        Anchor: (Height: 28, Bottom: 4);
+        Anchor: (Height: 32, Bottom: 4);
 
-        $C.@TextButton #TabColor {
-          Text: "> COLOR <";
-          Anchor: (Width: 143, Height: 26);
+        Group {
+          Anchor: (Width: 143);
+          $C.@TextButton #TabColor {
+            Text: %nickname.ui.tabColor;
+            Anchor: (Top: 0, Left: 0, Right: 0, Height: 26);
+          }
+          Group #TabColorHighlight {
+            Anchor: (Bottom: 0, Left: 4, Right: 4, Height: 3);
+            Background: #f4bc51;
+          }
         }
 
-        $C.@TextButton #TabGradient {
-          Text: "GRADIENT";
-          Anchor: (Width: 143, Height: 26, Left: 4);
+        Group {
+          Anchor: (Width: 143, Left: 4);
+          $C.@TextButton #TabGradient {
+            Text: %nickname.ui.tabGradient;
+            Anchor: (Top: 0, Left: 0, Right: 0, Height: 26);
+          }
+          Group #TabGradientHighlight {
+            Anchor: (Bottom: 0, Left: 4, Right: 4, Height: 3);
+            Background: #f4bc51;
+            Visible: false;
+          }
         }
 
-        $C.@TextButton #TabMessage {
-          Text: "MESSAGE";
-          Anchor: (Width: 143, Height: 26, Left: 4);
+        Group {
+          Anchor: (Width: 143, Left: 4);
+          $C.@TextButton #TabMessage {
+            Text: %nickname.ui.tabMessage;
+            Anchor: (Top: 0, Left: 0, Right: 0, Height: 26);
+          }
+          Group #TabMessageHighlight {
+            Anchor: (Bottom: 0, Left: 4, Right: 4, Height: 3);
+            Background: #f4bc51;
+            Visible: false;
+          }
         }
       }
 

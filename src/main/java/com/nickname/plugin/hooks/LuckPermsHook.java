@@ -84,38 +84,6 @@ public class LuckPermsHook {
         }
     }
 
-    @Nullable
-    public static String getPrimaryGroup(@Nonnull UUID uuid) {
-        if (!isAvailable()) return null;
-        try {
-            return com.nickname.plugin.compat.LuckPermsCompat.getPrimaryGroup(uuid);
-        } catch (NoClassDefFoundError | Exception e) {
-            disableHook(e);
-            return null;
-        }
-    }
-
-    @Nullable
-    public static String getDisplayName(@Nonnull UUID uuid) {
-        if (!isAvailable()) return null;
-        try {
-            return com.nickname.plugin.compat.LuckPermsCompat.getDisplayName(uuid);
-        } catch (NoClassDefFoundError | Exception e) {
-            disableHook(e);
-            return null;
-        }
-    }
-
-    public static boolean hasPermission(@Nonnull UUID uuid, @Nonnull String permission) {
-        if (!isAvailable()) return false;
-        try {
-            return com.nickname.plugin.compat.LuckPermsCompat.hasPermission(uuid, permission);
-        } catch (NoClassDefFoundError | Exception e) {
-            disableHook(e);
-            return false;
-        }
-    }
-
     public static void setDisplayName(@Nonnull UUID uuid, @Nullable String displayName) {
         if (!isAvailable()) return;
         try {

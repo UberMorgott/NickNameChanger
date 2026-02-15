@@ -69,7 +69,7 @@ public class ChatListener {
                             result = result.insert(buildUsername(senderUuid, safeName));
                             break;
                         case "message":
-                            String msgColor = storage.getMessageColor(playerRef.getUuid());
+                            String msgColor = storage.getMessageColor(senderUuid);
                             if (msgColor != null) {
                                 result = result.insert(buildMessage(message, msgColor));
                             } else {

@@ -4,14 +4,14 @@ plugins {
 }
 
 group = "com.nickname"
-version = "0.0.9"
+version = "0.0.10"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compileOnly(files("libs/HytaleServer.jar"))
+    compileOnly(files("../../../Hytale/install/pre-release/package/game/latest/Server/HytaleServer.jar"))
     compileOnly(files("libs/LuckPerms-Hytale-5.5.26.jar"))
     compileOnly(files("libs/tinymessage-2.0.0.jar"))
     implementation("com.google.code.gson:gson:2.10.1")

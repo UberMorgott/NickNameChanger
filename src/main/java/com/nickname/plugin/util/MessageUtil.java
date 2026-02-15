@@ -82,18 +82,13 @@ public final class MessageUtil {
         return parse(input);
     }
 
-    @Nonnull
-    public static Message parseForChat(@Nonnull String input) {
-        return parse(input);
-    }
-
     public static boolean hasMarkup(@Nonnull String input) {
         return input.contains("<") && input.contains(">");
     }
 
     @Nonnull
     public static String stripTags(@Nonnull String input) {
-        return input.replaceAll("<[^>]+>", "").replaceAll("</[^>]+>", "");
+        return input.replaceAll("<[^>]+>", "");
     }
 
     /**

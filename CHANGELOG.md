@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.0.10] - 2026-02-15
+
+> **Requires Hytale Pre-Release** (February 2026+)
+
+### Added
+- **Message Color** — Per-player chat message coloring
+  - New UI tab "Message" in the nickname editor with color presets, gradient, and custom color picker
+  - Command: `/nick msgcolor <hex>`, `/nick msgcolor gradient:#HEX1:#HEX2`, `/nick msgcolor reset`
+  - Chat confirmation message with color preview on apply
+- **Nickname Validation** — Configurable rules in `config.json`:
+  - Min/max length enforcement
+  - Banned words list (case-insensitive)
+  - Cyrillic character support (configurable)
+  - Unique nickname enforcement (no duplicates)
+- **Tag Injection Protection** — Only safe markup tags allowed: `color`, `gradient`, `b`, `bold`, `i`, `italic`, `u`, `underline`
+- **Map Display** — Separate `showOnMap` config option (independent from tab list)
+- **Portuguese (pt-BR)** — Full localization added
+- **UI Tab Highlighting** — Active tab shown with gold highlight bar
+- **Admin Settings GUI** — `/nick settings` command opens a GUI for administrators to control global nickname display
+  - Toggle: Show in Chat, Show on Nameplate, Show in Tab List / Map
+  - Changes apply **instantly** to all online players — no restart or rejoin needed
+  - Settings persist to `config.json`
+- **Permission `nickname.admin`** — Controls access to `/nick settings` (denied by default)
+- **API: Display Settings** — New `NicknameAPI` methods: `isShowInChat()`, `isShowOnNameplate()`, `isShowInTabList()`
+
+### Fixed
+- **Chat shadow variable bug** — Message color was applied using wrong UUID in some cases
+- **Gradient tab state** — UI now opens on correct tab (Color/Gradient) based on saved nickname
+- **`/nick reset`** — Now also clears message color and original username mapping
+- **Per-file saving** — Nicknames, original usernames, and message colors saved independently (prevents data loss)
+- **`removeNickname()`** — No longer removes original username mapping (kept for re-use)
+
+### Changed
+- **Recompiled for Hytale Pre-Release** — API changed from `broadcastPacket(Packet)` to `broadcastPacket(ToClientPacket)`
+- Display settings are now **global** (admin-controlled) instead of per-player
+- Removed dead code: unused LuckPerms methods, unused i18n keys, redundant parsing methods
+
 ## [0.0.9] - 2026-02-06
 
 ### Fixed

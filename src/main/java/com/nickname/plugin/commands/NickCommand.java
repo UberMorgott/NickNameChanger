@@ -143,6 +143,8 @@ public class NickCommand extends AbstractCommand {
             }
 
             storage.removeNickname(uuid);
+            storage.removeOriginalUsername(uuid);
+            storage.removeMessageColor(uuid);
 
             // Restore PlayerRef.username to original (only if map nicknames enabled)
             if (config.display.showOnMap) {
@@ -362,29 +364,47 @@ public class NickCommand extends AbstractCommand {
         return filtered.toString().trim();
     }
 
+    private static final java.util.Set<String> ALLOWED_TAGS = java.util.Set.of(
+        "color", "gradient", "b", "bold", "i", "italic", "u", "underline"
+    );
+
     @Nonnull
     private String filterNicknameWithTags(@Nonnull String nickname) {
-        // Allow TinyMessage color tags while filtering regular text
+        // Allow only whitelisted TinyMessage tags while filtering regular text
         StringBuilder filtered = new StringBuilder();
-        boolean inTag = false;
+        int i = 0;
 
-        for (int i = 0; i < nickname.length(); i++) {
+        while (i < nickname.length()) {
             char c = nickname.charAt(i);
 
             if (c == '<') {
-                inTag = true;
-                filtered.append(c);
-            } else if (c == '>') {
-                inTag = false;
-                filtered.append(c);
-            } else if (inTag) {
-                // Inside a tag, allow all characters
-                filtered.append(c);
+                // Find closing >
+                int end = nickname.indexOf('>', i);
+                if (end == -1) {
+                    // No closing > — treat as text
+                    if (isAllowedChar(c)) filtered.append(c);
+                    i++;
+                    continue;
+                }
+
+                String tagContent = nickname.substring(i + 1, end);
+                // Extract tag name: strip leading / and everything after :
+                String tagName = tagContent.startsWith("/") ? tagContent.substring(1) : tagContent;
+                int colonIdx = tagName.indexOf(':');
+                if (colonIdx >= 0) tagName = tagName.substring(0, colonIdx);
+                tagName = tagName.toLowerCase().trim();
+
+                if (ALLOWED_TAGS.contains(tagName)) {
+                    // Keep the whole tag as-is
+                    filtered.append(nickname, i, end + 1);
+                }
+                // else: skip the tag entirely
+                i = end + 1;
             } else {
-                // Outside a tag, filter normally
                 if (isAllowedChar(c)) {
                     filtered.append(c);
                 }
+                i++;
             }
         }
         return filtered.toString().trim();
