@@ -20,6 +20,7 @@ import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.nickname.plugin.NicknameChanger;
 import com.nickname.plugin.config.PluginConfig;
@@ -112,25 +113,32 @@ public class NicknameSettingsPage extends InteractiveCustomUIPage<NicknameSettin
             if (nickname == null) continue;
 
             String plainName = MessageUtil.stripTags(nickname);
-            String originalName = storage.getOriginalUsername(uuid);
-            if (originalName == null) originalName = pr.getUsername();
+            String orig = storage.getOriginalUsername(uuid);
+            String originalName = orig != null ? orig : pr.getUsername();
 
             Ref<EntityStore> playerEntityRef = pr.getReference();
             if (playerEntityRef == null || !playerEntityRef.isValid()) continue;
             Store<EntityStore> playerStore = playerEntityRef.getStore();
+            World playerWorld = ((EntityStore) playerStore.getExternalData()).getWorld();
 
-            // Nameplate
-            Nameplate nameplate = playerStore.ensureAndGetComponent(playerEntityRef, Nameplate.getComponentType());
-            if (showOnNameplate) {
-                nameplate.setText(plainName);
-                playerStore.putComponent(playerEntityRef, DisplayNameComponent.getComponentType(),
-                    new DisplayNameComponent(Message.raw(plainName)));
-            } else {
-                nameplate.setText(originalName);
-                playerStore.removeComponentIfExists(playerEntityRef, DisplayNameComponent.getComponentType());
-            }
+            // Schedule store access on the player's own world thread to avoid
+            // IllegalStateException when players are in different worlds
+            playerWorld.execute(() -> {
+                if (!playerEntityRef.isValid()) return;
 
-            // Tab list
+                // Nameplate
+                Nameplate nameplate = playerStore.ensureAndGetComponent(playerEntityRef, Nameplate.getComponentType());
+                if (showOnNameplate) {
+                    nameplate.setText(plainName);
+                    playerStore.putComponent(playerEntityRef, DisplayNameComponent.getComponentType(),
+                        new DisplayNameComponent(Message.raw(plainName)));
+                } else {
+                    nameplate.setText(originalName);
+                    playerStore.removeComponentIfExists(playerEntityRef, DisplayNameComponent.getComponentType());
+                }
+            });
+
+            // Tab list (broadcastPacket is thread-safe, doesn't touch ECS store)
             RemoveFromServerPlayerList removePacket = new RemoveFromServerPlayerList(new UUID[]{uuid});
             Universe.get().broadcastPacket(removePacket);
 
