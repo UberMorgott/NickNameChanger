@@ -2,7 +2,7 @@
 
 [![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![ru](https://img.shields.io/badge/lang-Русский-green)](README.ru.md)
 
-> **Note:** Version 0.0.10 requires Hytale **Pre-Release** (February 2026+). It will not work with older Release builds.
+> **Note:** Version 0.0.11 requires Hytale **Release** (February 2026+).
 
 A server-side plugin for Hytale that allows players to customize their display nickname with colors, gradients, and text styles.
 
@@ -41,7 +41,7 @@ A server-side plugin for Hytale that allows players to customize their display n
 
 ## Installation
 
-1. Place `NickNameChanger-0.0.10.jar` into `Hytale\UserData\Mods`
+1. Place `NickNameChanger-0.0.11.jar` into `Hytale\UserData\Mods`
 2. Launch the game and open world settings
 3. Enable the mod in the Mods section
 4. Load the world
@@ -269,7 +269,7 @@ if (NicknameAPI.isShowInChat() && NicknameAPI.hasNickname(uuid)) {
 
 ## Compatibility
 
-- **Hytale Pre-Release** (February 2026+) — Required for v0.0.10
+- **Hytale Release** (February 2026+) — Required for v0.0.11
 - **[LuckPerms](https://luckperms.net/)** — Full support:
   - Nicknames sync to LuckPerms `display-name` meta
   - Chat displays LuckPerms prefix/suffix alongside the nickname

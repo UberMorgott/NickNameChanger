@@ -2,7 +2,7 @@
 
 [![en](https://img.shields.io/badge/lang-English-blue)](README.md) [![ru](https://img.shields.io/badge/lang-Русский-green)](README.ru.md)
 
-> **Внимание:** Версия 0.0.10 требует Hytale **Pre-Release** (февраль 2026+). Не будет работать со старыми Release-билдами.
+> **Внимание:** Версия 0.0.11 требует Hytale **Release** (февраль 2026+).
 
 Серверный плагин для Hytale, позволяющий игрокам менять отображаемый никнейм с цветами, градиентами и стилями текста.
 
@@ -41,7 +41,7 @@
 
 ## Установка
 
-1. Поместите `NickNameChanger-0.0.10.jar` в папку `Hytale\UserData\Mods`
+1. Поместите `NickNameChanger-0.0.11.jar` в папку `Hytale\UserData\Mods`
 2. Запустите игру и откройте настройки мира
 3. Включите мод в разделе Mods
 4. Загрузите мир
@@ -269,7 +269,7 @@ if (NicknameAPI.isShowInChat() && NicknameAPI.hasNickname(uuid)) {
 
 ## Совместимость
 
-- **Hytale Pre-Release** (февраль 2026+) — Обязательно для v0.0.10
+- **Hytale Release** (февраль 2026+) — Обязательно для v0.0.11
 - **[LuckPerms](https://luckperms.net/)** — Полная поддержка:
   - Никнеймы синхронизируются с мета-значением `display-name` в LuckPerms
   - В чате отображаются prefix/suffix из LuckPerms рядом с никнеймом
