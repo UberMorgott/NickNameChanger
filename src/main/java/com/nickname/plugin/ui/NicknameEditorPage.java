@@ -605,7 +605,8 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
         nameplate.setText(originalName);
 
-        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(originalName).color("#FFFFFF"));
+        // Set DisplayNameComponent to original name (don't remove — NameplateRefChangeSystem.onComponentRemoved clears nameplate to "")
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(originalName));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
 
         UUID worldUuid = playerRef.getWorldUuid();

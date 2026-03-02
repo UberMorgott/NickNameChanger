@@ -44,6 +44,7 @@ public class NickCommand extends AbstractCommand {
         this.storage = storage;
         this.config = config;
         setAllowsExtraArguments(true);
+        addAliases("nickname");
     }
 
     @Override
@@ -70,8 +71,20 @@ public class NickCommand extends AbstractCommand {
         }
 
         Store<EntityStore> store = ref.getStore();
+        if (store == null) {
+            context.sendMessage(Message.raw(Messages.get("en-US", Messages.ERROR_NOT_IN_WORLD)).color("#FF5555"));
+            return CompletableFuture.completedFuture(null);
+        }
         EntityStore entityStore = (EntityStore) store.getExternalData();
+        if (entityStore == null) {
+            context.sendMessage(Message.raw(Messages.get("en-US", Messages.ERROR_NOT_IN_WORLD)).color("#FF5555"));
+            return CompletableFuture.completedFuture(null);
+        }
         World world = entityStore.getWorld();
+        if (world == null) {
+            context.sendMessage(Message.raw(Messages.get("en-US", Messages.ERROR_NOT_IN_WORLD)).color("#FF5555"));
+            return CompletableFuture.completedFuture(null);
+        }
 
         // Run in world thread
         return CompletableFuture.runAsync(() -> {
@@ -332,8 +345,9 @@ public class NickCommand extends AbstractCommand {
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
         nameplate.setText(originalUsername);
 
-        // Remove DisplayNameComponent (use original name)
-        store.removeComponentIfExists(ref, DisplayNameComponent.getComponentType());
+        // Set DisplayNameComponent to original name (don't remove — NameplateRefChangeSystem.onComponentRemoved clears nameplate to "")
+        DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(originalUsername));
+        store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }
 
     private boolean isAllowedChar(char c) {

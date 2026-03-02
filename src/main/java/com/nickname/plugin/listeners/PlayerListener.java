@@ -33,7 +33,11 @@ public class PlayerListener {
 
     public void onPlayerReady(@Nonnull PlayerReadyEvent event) {
         Ref<EntityStore> ref = event.getPlayerRef();
+        if (ref == null || !ref.isValid()) return;
+
         Store<EntityStore> store = ref.getStore();
+        if (store == null) return;
+
         PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
 
         if (playerRef == null) return;

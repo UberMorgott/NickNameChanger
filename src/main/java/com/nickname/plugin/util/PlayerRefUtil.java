@@ -14,6 +14,11 @@ public class PlayerRefUtil {
         try {
             usernameField = PlayerRef.class.getDeclaredField("username");
             usernameField.setAccessible(true);
+            if (usernameField.getType() != String.class) {
+                System.out.println("[NicknameChanger] PlayerRef.username field type changed, map display disabled.");
+                available = false;
+                return;
+            }
             available = true;
             System.out.println("[NicknameChanger] PlayerRef reflection initialized.");
         } catch (NoSuchFieldException | SecurityException e) {
@@ -31,7 +36,7 @@ public class PlayerRefUtil {
         if (!available) return;
         try {
             usernameField.set(playerRef, username);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             System.err.println("[NicknameChanger] Failed to set PlayerRef username: " + e.getMessage());
         }
     }

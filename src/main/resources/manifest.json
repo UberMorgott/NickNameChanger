@@ -1,7 +1,7 @@
 {
   "Group": "NickNameChanger",
   "Name": "NickNameChanger",
-  "Version": "0.0.11",
+  "Version": "0.0.12",
   "Description": "Allows players to change their display nickname in chat, map, and above their heads",
   "Authors": [
     {
@@ -9,7 +9,7 @@
     }
   ],
   "Main": "com.nickname.plugin.NicknameChanger",
-  "ServerVersion": "*",
+  "ServerVersion": ">=2025.01.01",
   "Dependencies": {},
   "OptionalDependencies": {
     "Zoltus:TinyMessage": "*",

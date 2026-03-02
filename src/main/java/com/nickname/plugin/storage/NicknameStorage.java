@@ -144,6 +144,9 @@ public class NicknameStorage {
             }
         } catch (IOException e) {
             System.err.println("[NicknameChanger] Failed to load " + file.getFileName() + ": " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("[NicknameChanger] Corrupted data in " + file.getFileName() + ": " + e.getMessage());
+            // Don't crash — start with empty data, file will be overwritten on next save
         }
     }
 
@@ -154,8 +157,14 @@ public class NicknameStorage {
             for (Map.Entry<UUID, String> entry : source.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }
-            try (Writer writer = Files.newBufferedWriter(file)) {
+            Path tmpFile = file.resolveSibling(file.getFileName() + ".tmp");
+            try (Writer writer = Files.newBufferedWriter(tmpFile)) {
                 GSON.toJson(toSave, writer);
+            }
+            try {
+                Files.move(tmpFile, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(tmpFile, file, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             System.err.println("[NicknameChanger] Failed to save " + file.getFileName() + ": " + e.getMessage());

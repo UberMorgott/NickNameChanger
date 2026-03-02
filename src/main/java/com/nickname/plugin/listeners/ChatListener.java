@@ -33,9 +33,19 @@ public class ChatListener {
         boolean hasNickname = storage.isShowInChat() && storage.hasNickname(senderUuid);
         boolean hasLuckPerms = LuckPermsHook.isAvailable();
 
+        // Pre-fetch LP prefix/suffix so we can decide whether to override the formatter.
+        final String prefix = (hasLuckPerms && config.integrations.luckperms.showPrefix)
+                ? LuckPermsHook.getPrefix(senderUuid) : null;
+        final String suffix = (hasLuckPerms && config.integrations.luckperms.showSuffix)
+                ? LuckPermsHook.getSuffix(senderUuid) : null;
+
+        boolean hasLpData = (prefix != null && !prefix.isEmpty())
+                || (suffix != null && !suffix.isEmpty());
+
         // Only replace the formatter when we have something to contribute.
-        // This preserves formatting set by other chat plugins (e.g. EtherealPerms).
-        if (!hasNickname && !hasLuckPerms) {
+        // If the player has no nickname and LP has no prefix/suffix for them,
+        // let other chat plugins (EtherealPerms, HyRankUp, etc.) handle formatting.
+        if (!hasNickname && !hasLpData) {
             String content = event.getContent();
             return CompletableFuture.completedFuture(content != null ? content : "");
         }
@@ -43,11 +53,6 @@ public class ChatListener {
         String displayName = hasNickname
                 ? storage.getDisplayName(senderUuid, originalName) : originalName;
         final String safeName = displayName != null ? displayName : originalName;
-
-        final String prefix = (hasLuckPerms && config.integrations.luckperms.showPrefix)
-                ? LuckPermsHook.getPrefix(senderUuid) : null;
-        final String suffix = (hasLuckPerms && config.integrations.luckperms.showSuffix)
-                ? LuckPermsHook.getSuffix(senderUuid) : null;
 
         event.setFormatter((playerRef, message) -> {
             Message result = Message.empty();
@@ -98,10 +103,12 @@ public class ChatListener {
         if (colorSpec.startsWith("gradient:")) {
             String[] parts = colorSpec.split(":");
             if (parts.length == 3) {
-                return MessageUtil.parse("<gradient:" + parts[1] + ":" + parts[2] + ">" + message + "</gradient>");
+                // Escape angle brackets to prevent tag injection (e.g. player typing "</gradient>")
+                String safeMessage = message.replace("<", "").replace(">", "");
+                return MessageUtil.parse("<gradient:" + parts[1] + ":" + parts[2] + ">" + safeMessage + "</gradient>");
             }
         }
-        // Solid color
+        // Solid color — Message.raw() treats input as literal text, no injection risk
         return Message.raw(message).color(colorSpec);
     }
 

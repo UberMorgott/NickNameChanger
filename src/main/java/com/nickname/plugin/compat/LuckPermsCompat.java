@@ -8,6 +8,8 @@ import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.NodeType;
 import net.luckperms.api.node.types.MetaNode;
 
+import com.nickname.plugin.util.MessageUtil;
+
 import java.util.UUID;
 
 /**
@@ -23,15 +25,32 @@ public class LuckPermsCompat {
         luckPerms = LuckPermsProvider.get();
     }
 
-    public static String getPrefix(UUID uuid) {
+    /**
+     * Resolves a LuckPerms User by UUID.
+     * When allowBlocking is false, only checks the in-memory cache (safe for hot paths like chat).
+     * When allowBlocking is true, falls back to loading from storage if not cached.
+     */
+    private static User resolveUser(UUID uuid, boolean allowBlocking) {
         User user = luckPerms.getUserManager().getUser(uuid);
+        if (user == null && allowBlocking) {
+            try {
+                user = luckPerms.getUserManager().loadUser(uuid).join();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return user;
+    }
+
+    public static String getPrefix(UUID uuid) {
+        User user = resolveUser(uuid, false);
         if (user == null) return null;
         CachedMetaData metaData = user.getCachedData().getMetaData();
         return metaData.getPrefix();
     }
 
     public static String getSuffix(UUID uuid) {
-        User user = luckPerms.getUserManager().getUser(uuid);
+        User user = resolveUser(uuid, false);
         if (user == null) return null;
         CachedMetaData metaData = user.getCachedData().getMetaData();
         return metaData.getSuffix();
@@ -42,7 +61,8 @@ public class LuckPermsCompat {
         userManager.modifyUser(uuid, user -> {
             user.data().clear(NodeType.META.predicate(mn -> mn.getMetaKey().equals("display-name")));
             if (displayName != null && !displayName.isEmpty()) {
-                MetaNode node = MetaNode.builder("display-name", displayName).build();
+                String cleanName = MessageUtil.stripTags(displayName);
+                MetaNode node = MetaNode.builder("display-name", cleanName).build();
                 user.data().add(node);
             }
         });

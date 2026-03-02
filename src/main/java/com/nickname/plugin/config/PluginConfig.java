@@ -13,7 +13,7 @@ public class PluginConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public String pluginName = "NicknameChanger";
-    public String version = "0.0.10";
+    public String version = "0.0.12";
     public boolean debugMode = false;
     public String chatFormat = "{prefix}<{username}>{suffix} {message}";
     public DisplayConfig display = new DisplayConfig();
@@ -73,6 +73,9 @@ public class PluginConfig {
                 }
             } catch (IOException e) {
                 System.err.println("[NicknameChanger] Failed to load config: " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("[NicknameChanger] Corrupted config file: " + e.getMessage());
+                // Don't crash — use defaults
             }
         }
 

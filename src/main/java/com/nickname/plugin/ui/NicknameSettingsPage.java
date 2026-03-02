@@ -119,7 +119,11 @@ public class NicknameSettingsPage extends InteractiveCustomUIPage<NicknameSettin
             Ref<EntityStore> playerEntityRef = pr.getReference();
             if (playerEntityRef == null || !playerEntityRef.isValid()) continue;
             Store<EntityStore> playerStore = playerEntityRef.getStore();
-            World playerWorld = ((EntityStore) playerStore.getExternalData()).getWorld();
+            if (playerStore == null) continue;
+            EntityStore externalData = (EntityStore) playerStore.getExternalData();
+            if (externalData == null) continue;
+            World playerWorld = externalData.getWorld();
+            if (playerWorld == null) continue;
 
             // Schedule store access on the player's own world thread to avoid
             // IllegalStateException when players are in different worlds
