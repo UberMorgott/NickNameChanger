@@ -122,6 +122,7 @@ public class NickCommand extends AbstractCommand {
 
             if (arg.equalsIgnoreCase("reset") || arg.equalsIgnoreCase("clear") ||
                 arg.equalsIgnoreCase("off") || arg.equalsIgnoreCase("remove")) {
+                if (!ref.isValid()) return;
                 resetNickname(ref, store, playerRef, playerUuid, username);
                 return;
             }
@@ -170,10 +171,14 @@ public class NickCommand extends AbstractCommand {
             }
 
             // Reset nameplate to original username
-            resetNameplate(ref, store, originalUsername);
+            if (config.display.showOnNameplate) {
+                resetNameplate(ref, store, originalUsername);
+            }
 
             // Reset player list to original username
-            updatePlayerList(playerRef, originalUsername);
+            if (config.display.showInTabList) {
+                updatePlayerList(playerRef, originalUsername);
+            }
 
             playerRef.sendMessage(Message.join(
                 Message.raw(Messages.get(playerRef, Messages.RESET_SUCCESS) + " ").color("#55FF55"),
@@ -321,6 +326,7 @@ public class NickCommand extends AbstractCommand {
     private void updatePlayerList(@Nonnull PlayerRef playerRef, @Nonnull String displayName) {
         UUID uuid = playerRef.getUuid();
         UUID worldUuid = playerRef.getWorldUuid();
+        if (worldUuid == null) return;
 
         // Strip color tags for player list (it may not support rich text)
         String plainName = MessageUtil.stripTags(displayName);
@@ -343,9 +349,11 @@ public class NickCommand extends AbstractCommand {
     private void resetNameplate(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull String originalUsername) {
         // Reset Nameplate to original username
         Nameplate nameplate = store.ensureAndGetComponent(ref, Nameplate.getComponentType());
+        if (nameplate == null) return;
         nameplate.setText(originalUsername);
 
         // Set DisplayNameComponent to original name (don't remove — NameplateRefChangeSystem.onComponentRemoved clears nameplate to "")
+        if (!ref.isValid()) return;
         DisplayNameComponent displayNameComponent = new DisplayNameComponent(Message.raw(originalUsername));
         store.putComponent(ref, DisplayNameComponent.getComponentType(), displayNameComponent);
     }

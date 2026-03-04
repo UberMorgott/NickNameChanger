@@ -41,11 +41,12 @@ public class ChatListener {
 
         boolean hasLpData = (prefix != null && !prefix.isEmpty())
                 || (suffix != null && !suffix.isEmpty());
+        boolean hasMsgColor = storage.getMessageColor(senderUuid) != null;
 
         // Only replace the formatter when we have something to contribute.
-        // If the player has no nickname and LP has no prefix/suffix for them,
-        // let other chat plugins (EtherealPerms, HyRankUp, etc.) handle formatting.
-        if (!hasNickname && !hasLpData) {
+        // If the player has no nickname, LP has no prefix/suffix for them,
+        // and no message color is set — let other chat plugins handle formatting.
+        if (!hasNickname && !hasLpData && !hasMsgColor) {
             String content = event.getContent();
             return CompletableFuture.completedFuture(content != null ? content : "");
         }
