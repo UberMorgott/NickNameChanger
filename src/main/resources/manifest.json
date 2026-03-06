@@ -1,7 +1,7 @@
 {
   "Group": "NickNameChanger",
   "Name": "NickNameChanger",
-  "Version": "0.0.12",
+  "Version": "0.0.16",
   "Description": "Allows players to change their display nickname in chat, map, and above their heads",
   "Authors": [
     {
@@ -13,7 +13,9 @@
   "Dependencies": {},
   "OptionalDependencies": {
     "Zoltus:TinyMessage": "*",
-    "lucko:LuckPerms": "*"
+    "LuckPerms:LuckPerms": "*",
+    "lucko:MiniChatFormatter": "*",
+    "fof1092:EssentialsPlus": "*"
   },
   "DisabledByDefault": false,
   "IncludesAssetPack": true

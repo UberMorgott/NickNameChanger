@@ -1,5 +1,7 @@
 package com.nickname.plugin.hooks;
 
+import com.hypixel.hytale.server.core.plugin.PluginManager;
+import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -31,7 +33,10 @@ public class LuckPermsHook {
             return;
         }
         try {
-            Class.forName("net.luckperms.api.LuckPermsProvider");
+            PluginManager pm = PluginManager.get();
+            if (pm == null || pm.getPlugin(new PluginIdentifier("LuckPerms", "LuckPerms")) == null) {
+                throw new IllegalStateException("LuckPerms not loaded");
+            }
             com.nickname.plugin.compat.LuckPermsCompat.init();
             boolean wasUnavailable = !available;
             available = true;
@@ -41,7 +46,7 @@ public class LuckPermsHook {
             } else if (wasUnavailable) {
                 System.out.println("[NicknameChanger] LuckPerms integration enabled (late binding)!");
             }
-        } catch (ClassNotFoundException | IllegalStateException | NoClassDefFoundError e) {
+        } catch (IllegalStateException | NoClassDefFoundError e) {
             if (!initialized) {
                 System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
                 initialized = true;

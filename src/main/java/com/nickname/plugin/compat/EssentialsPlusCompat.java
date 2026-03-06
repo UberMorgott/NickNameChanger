@@ -1,5 +1,8 @@
 package com.nickname.plugin.compat;
 
+import com.hypixel.hytale.server.core.plugin.PluginManager;
+import com.hypixel.hytale.common.plugin.PluginIdentifier;
+
 /**
  * Detects EssentialsPlus by fof1092.
  * When EP is active, NNC defers chat formatting to EssentialsPlus entirely
@@ -16,12 +19,10 @@ public class EssentialsPlusCompat {
      */
     public void detect() {
         if (!checked) {
-            try {
-                Class.forName("de.fof1092.essentialsplus.EssentialsPlus");
-                available = true;
+            PluginManager pm = PluginManager.get();
+            available = pm != null && pm.getPlugin(new PluginIdentifier("fof1092", "EssentialsPlus")) != null;
+            if (available) {
                 System.out.println("[NicknameChanger] EssentialsPlus detected, will defer chat formatting to EssentialsPlus.");
-            } catch (ClassNotFoundException e) {
-                available = false;
             }
             checked = true;
         }
