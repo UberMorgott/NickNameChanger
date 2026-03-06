@@ -183,6 +183,66 @@ public final class MessageUtil {
         return m.find() ? m.group(2) : "#FFFFFF";
     }
 
+    /**
+     * Converts TinyMessage tags to EssentialsPlus ColoredTextParser format.
+     * TinyMessage: {@code <color:#FF5555>text</color>}, {@code <gradient:#c1:#c2>text</gradient>}
+     * EP format:   {@code <#FF5555>text</#FF5555>},     {@code <gradient:#c1:#c2>text</gradient>}
+     */
+    @Nonnull
+    public static String convertToEPFormat(@Nonnull String tinyMessage) {
+        if (tinyMessage.isEmpty()) return tinyMessage;
+
+        String result = tinyMessage;
+
+        // Convert <color:#RRGGBB> to <#RRGGBB>
+        Matcher matcher = COLOR_PATTERN.matcher(result);
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, "<" + matcher.group(1) + ">");
+        }
+        matcher.appendTail(sb);
+        result = sb.toString();
+
+        // Replace </color> closing tags with proper </#RRGGBB> using a color stack
+        result = replaceColorCloseTags(result);
+
+        // EP uses <underlined> not <underline>
+        result = result.replace("<underline>", "<underlined>").replace("</underline>", "</underlined>");
+
+        // gradient, bold, italic tags match EP format — no conversion needed
+        return result;
+    }
+
+    private static String replaceColorCloseTags(@Nonnull String input) {
+        StringBuilder result = new StringBuilder();
+        java.util.Deque<String> colorStack = new java.util.ArrayDeque<>();
+        int i = 0;
+        while (i < input.length()) {
+            if (input.startsWith("</color>", i)) {
+                if (!colorStack.isEmpty()) {
+                    result.append("</").append(colorStack.pop()).append(">");
+                }
+                i += "</color>".length();
+            } else if (input.charAt(i) == '<' && i + 1 < input.length() && input.charAt(i + 1) == '#') {
+                // Opening color tag like <#FF5555>
+                int end = input.indexOf('>', i);
+                if (end > i) {
+                    String tag = input.substring(i + 1, end); // "#FF5555"
+                    colorStack.push(tag);
+                    result.append(input, i, end + 1);
+                    i = end + 1;
+                } else {
+                    result.append(input.charAt(i));
+                    i++;
+                }
+            } else {
+                result.append(input.charAt(i));
+                i++;
+            }
+        }
+        return result.toString();
+    }
+
     private static int[] hexToRgb(String hex) {
         hex = hex.replace("#", "");
         return new int[] {

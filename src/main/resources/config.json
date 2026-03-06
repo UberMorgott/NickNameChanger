@@ -1,6 +1,6 @@
 {
   "pluginName": "NicknameChanger",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "debugMode": false,
   "chatFormat": "{prefix}<{username}>{suffix} {message}",
   "display": {

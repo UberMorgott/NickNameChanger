@@ -44,6 +44,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     private boolean isUnderline = false;
     private boolean isGradient = false;
     private boolean isMessage = false;
+    private String nickColorMode = "none"; // "none", "color", "gradient"
     private String gradColor1 = "#FF5555";
     private String gradColor2 = "#5555FF";
     private String msgColor = "";
@@ -74,6 +75,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
 
         if (formatted.contains("<gradient:")) {
             this.isGradient = true;
+            this.nickColorMode = "gradient";
             int start = formatted.indexOf("<gradient:") + 10;
             int end = formatted.indexOf(">", start);
             if (end > start) {
@@ -84,11 +86,14 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                 }
             }
         } else if (formatted.contains("<color:")) {
+            this.nickColorMode = "color";
             int start = formatted.indexOf("<color:") + 7;
             int end = formatted.indexOf(">", start);
             if (end > start) {
                 this.currentColor = formatted.substring(start, end);
             }
+        } else {
+            this.nickColorMode = "none";
         }
 
         this.currentNickname = MessageUtil.stripTags(formatted);
@@ -285,6 +290,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                     // Reset settings without closing - clear all formatting and reset nickname in storage
                     currentNickname = playerRef.getUsername();
                     currentColor = "";
+                    nickColorMode = "none";
                     isBold = false;
                     isItalic = false;
                     isUnderline = false;
@@ -328,25 +334,30 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
                 case "color" -> {
                     if (data.color != null) {
                         currentColor = data.color;
+                        nickColorMode = data.color.isEmpty() ? "none" : "color";
                     }
                 }
                 case "color_picker" -> {
                     if (data.pickerColor != null && isValidHexColor(data.pickerColor)) {
                         currentColor = normalizeHexColor(data.pickerColor);
+                        nickColorMode = "color";
                     }
                 }
                 case "grad_preset" -> {
                     if (data.g1 != null) gradColor1 = data.g1;
                     if (data.g2 != null) gradColor2 = data.g2;
+                    nickColorMode = "gradient";
                 }
                 case "grad_color1" -> {
                     if (data.g1 != null && isValidHexColor(data.g1)) {
                         gradColor1 = normalizeHexColor(data.g1);
+                        nickColorMode = "gradient";
                     }
                 }
                 case "grad_color2" -> {
                     if (data.g2 != null && isValidHexColor(data.g2)) {
                         gradColor2 = normalizeHexColor(data.g2);
+                        nickColorMode = "gradient";
                     }
                 }
             }
@@ -388,7 +399,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             commandBuilder.set("#BoldCheckbox #CheckBox.Value", false);
             commandBuilder.set("#ItalicCheckbox #CheckBox.Value", false);
             commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", false);
-            commandBuilder.set("#MsgColorPicker.Value", "#FFFFFF");
+            commandBuilder.set("#MsgColorPicker.Value", msgColor.isEmpty() ? "#FFFFFF" : msgColor);
         }
 
         sendUpdate(commandBuilder);
@@ -429,9 +440,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     private String buildFormattedNickname() {
         StringBuilder sb = new StringBuilder();
 
-        if (isGradient) {
+        if ("gradient".equals(nickColorMode)) {
             sb.append("<gradient:").append(gradColor1).append(":").append(gradColor2).append(">");
-        } else if (!currentColor.isEmpty()) {
+        } else if ("color".equals(nickColorMode) && !currentColor.isEmpty()) {
             sb.append("<color:").append(currentColor).append(">");
         }
 
@@ -445,9 +456,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         if (isItalic) sb.append("</i>");
         if (isBold) sb.append("</b>");
 
-        if (isGradient) {
+        if ("gradient".equals(nickColorMode)) {
             sb.append("</gradient>");
-        } else if (!currentColor.isEmpty()) {
+        } else if ("color".equals(nickColorMode) && !currentColor.isEmpty()) {
             sb.append("</color>");
         }
 
@@ -455,7 +466,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
     }
 
     private boolean hasFormatting() {
-        return !currentColor.isEmpty() || isGradient || isBold || isItalic || isUnderline;
+        return !currentColor.isEmpty() || "gradient".equals(nickColorMode) || isBold || isItalic || isUnderline;
     }
 
     private boolean isAllowedChar(char c) {

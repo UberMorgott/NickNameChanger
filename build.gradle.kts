@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.nickname"
-version = "0.0.13"
+version = "0.0.15"
 
 repositories {
     mavenCentral()

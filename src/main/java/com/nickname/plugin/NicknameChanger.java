@@ -8,6 +8,8 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 
 import com.nickname.plugin.api.NicknameAPI;
 import com.nickname.plugin.commands.NickCommand;
+import com.nickname.plugin.compat.EssentialsPlusCompat;
+import com.nickname.plugin.compat.MiniChatFormatterCompat;
 import com.nickname.plugin.config.PluginConfig;
 import com.nickname.plugin.hooks.LuckPermsHook;
 import com.nickname.plugin.listeners.ChatListener;
@@ -27,6 +29,8 @@ public class NicknameChanger extends JavaPlugin {
     private Path dataFolder;
     private ChatListener chatListener;
     private PlayerListener playerListener;
+    private MiniChatFormatterCompat mcfCompat;
+    private EssentialsPlusCompat epCompat;
 
     public NicknameChanger(@Nonnull JavaPluginInit init) {
         super(init);
@@ -47,11 +51,17 @@ public class NicknameChanger extends JavaPlugin {
         this.storage = new NicknameStorage(dataFolder, config);
         NicknameAPI.init(storage);
 
-        this.chatListener = new ChatListener(storage, config);
+        this.mcfCompat = new MiniChatFormatterCompat();
+        this.epCompat = new EssentialsPlusCompat();
+        this.chatListener = new ChatListener(storage, config, mcfCompat, epCompat);
         this.playerListener = new PlayerListener(storage, config);
 
         getCommandRegistry().registerCommand(new NickCommand(storage, config));
-        getEventRegistry().registerGlobal(EventPriority.LAST, PlayerChatEvent.class, chatListener::onPlayerChat);
+        // Two handlers for chat formatting:
+        // FIRST: set plain nickname into PlayerRef.username BEFORE external formatters (EP, MCF) read it
+        // LATE: restore original username, then either defer to external formatters or apply own formatting
+        getEventRegistry().registerGlobal(EventPriority.FIRST, PlayerChatEvent.class, chatListener::onPlayerChatEarly);
+        getEventRegistry().registerGlobal(EventPriority.LATE, PlayerChatEvent.class, chatListener::onPlayerChat);
         getEventRegistry().registerGlobal(PlayerReadyEvent.class, playerListener::onPlayerReady);
     }
 
@@ -63,6 +73,10 @@ public class NicknameChanger extends JavaPlugin {
         } catch (NoClassDefFoundError e) {
             System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
         }
+
+        // Eagerly detect external formatters so ChatListener knows from the first chat event
+        mcfCompat.detect();
+        epCompat.detect();
     }
 
     @Override

@@ -13,7 +13,7 @@ public class PluginConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public String pluginName = "NicknameChanger";
-    public String version = "0.0.12";
+    public String version = "0.0.15";
     public boolean debugMode = false;
     public String chatFormat = "{prefix}<{username}>{suffix} {message}";
     public DisplayConfig display = new DisplayConfig();
