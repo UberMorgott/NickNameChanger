@@ -105,6 +105,115 @@ Config file is created automatically at `mods/NickNameChanger_NickNameChanger/co
 
 > **Important:** Config keys use **PascalCase** (e.g. `ShowInChat`, not `showInChat`) — this is required by Hytale's `BuilderCodec` serializer.
 
+## Developer API
+
+Other plugins can read nickname data and display settings via the `NicknameAPI` class.
+
+### Setup
+
+Add NickNameChanger as an optional dependency in your `manifest.json`:
+
+```json
+{
+  "OptionalDependencies": {
+    "NickNameChanger:NickNameChanger": "*"
+  }
+}
+```
+
+### Check if NickNameChanger is loaded
+
+```java
+import com.hypixel.hytale.server.core.plugin.PluginManager;
+import com.hypixel.hytale.common.plugin.PluginIdentifier;
+
+boolean hasNNC = PluginManager.get().getPlugin(
+    new PluginIdentifier("NickNameChanger", "NickNameChanger")) != null;
+```
+
+### Using NicknameAPI
+
+```java
+import com.nickname.plugin.api.NicknameAPI;
+import java.util.UUID;
+
+// Get player UUID from any PlayerRef
+UUID uuid = playerRef.getUuid();
+```
+
+### Methods
+
+#### `getNickname(UUID uuid) → String | null`
+
+Returns the raw nickname with markup tags, or `null` if no nickname is set.
+
+```java
+String nick = NicknameAPI.getNickname(uuid);
+// Returns: "<gradient:#FF5555:#55FF55>Morgott" (with color tags)
+// Returns: "Morgott" (plain nickname)
+// Returns: null (no nickname set)
+```
+
+#### `getDisplayName(UUID uuid, String defaultName) → String`
+
+Returns the nickname if set, otherwise returns `defaultName`. Never returns null.
+
+```java
+String name = NicknameAPI.getDisplayName(uuid, playerRef.getUsername());
+// Returns: "Morgott" (nickname or fallback, always non-null)
+```
+
+#### `hasNickname(UUID uuid) → boolean`
+
+```java
+if (NicknameAPI.hasNickname(uuid)) {
+    // Player has a custom nickname
+}
+```
+
+#### `getOriginalUsername(UUID uuid) → String | null`
+
+Returns the player's real username before any nickname was set. Returns `null` if unknown.
+
+```java
+String realName = NicknameAPI.getOriginalUsername(uuid);
+// Returns: "UberMorgott" (original username)
+// Returns: null (player never set a nickname, original unknown)
+```
+
+#### Display Settings (global, read-only)
+
+```java
+NicknameAPI.isShowInChat()      // Are nicknames shown in chat? (default: true)
+NicknameAPI.isShowOnNameplate()  // Are nicknames shown above heads? (default: true)
+NicknameAPI.isShowInTabList()    // Are nicknames shown in player list? (default: true)
+```
+
+### Full Example: Custom Join Message
+
+```java
+public void onPlayerReady(PlayerReadyEvent event) {
+    PlayerRef playerRef = /* get from event */;
+    UUID uuid = playerRef.getUuid();
+
+    String displayName = NicknameAPI.getDisplayName(uuid, playerRef.getUsername());
+    String original = NicknameAPI.getOriginalUsername(uuid);
+
+    if (original != null && !displayName.equals(original)) {
+        broadcast(displayName + " (aka " + original + ") joined!");
+    } else {
+        broadcast(displayName + " joined!");
+    }
+}
+```
+
+### Notes
+
+- All methods are **static** and **thread-safe**
+- All methods return safe defaults if NickNameChanger is not loaded (`null` or `false`)
+- `getNickname()` may contain markup tags (`<color:...>`, `<gradient:...>`, `<bold>`, etc.) — use `getDisplayName()` if you need plain text with fallback
+- Add `NickNameChanger:NickNameChanger` to your `OptionalDependencies` to ensure NNC loads before your plugin
+
 ## Links
 
 - [CurseForge](https://www.curseforge.com/hytale/mods/nick-name-changer)
