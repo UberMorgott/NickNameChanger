@@ -206,10 +206,26 @@ public final class MessageUtil {
         // Replace </color> closing tags with proper </#RRGGBB> using a color stack
         result = replaceColorCloseTags(result);
 
+        // Convert short-form tags to EP long-form
+        result = result.replace("<b>", "<bold>").replace("</b>", "</bold>");
+        result = result.replace("<i>", "<italic>").replace("</i>", "</italic>");
+        result = result.replace("<u>", "<underlined>").replace("</u>", "</underlined>");
+
         // EP uses <underlined> not <underline>
         result = result.replace("<underline>", "<underlined>").replace("</underline>", "</underlined>");
 
-        // gradient, bold, italic tags match EP format — no conversion needed
+        // EP doesn't support style tags in {player} placeholder — strip them.
+        // While ColoredTextParser itself can parse <bold>/<italic>/<underlined>,
+        // they break when embedded inside the chat format's own color tags
+        // (e.g. <#AAAAAA>{player}</#AAAAAA> wrapping <bold>Nick</bold>).
+        result = result.replaceAll("</?bold>", "");
+        result = result.replaceAll("</?italic>", "");
+        result = result.replaceAll("</?underlined?>", "");
+        result = result.replaceAll("</?b>", "");
+        result = result.replaceAll("</?i>", "");
+        result = result.replaceAll("</?u>", "");
+
+        // gradient and color tags are compatible with EP format — keep them
         return result;
     }
 

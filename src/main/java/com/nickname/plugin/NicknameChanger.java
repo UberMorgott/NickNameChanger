@@ -2,6 +2,7 @@ package com.nickname.plugin;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.util.Config;
 import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
@@ -19,10 +20,13 @@ import com.nickname.plugin.util.PlayerRefUtil;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
+import java.util.logging.Level;
 
 public class NicknameChanger extends JavaPlugin {
 
     private static NicknameChanger instance;
+
+    private final Config<PluginConfig> configHolder = withConfig(PluginConfig.CODEC);
 
     private NicknameStorage storage;
     private PluginConfig config;
@@ -44,8 +48,7 @@ public class NicknameChanger extends JavaPlugin {
     @Override
     protected void setup() {
         this.dataFolder = getDataDirectory();
-        Path dataFolder = this.dataFolder;
-        this.config = PluginConfig.load(dataFolder);
+        this.config = configHolder.get();
         PlayerRefUtil.init();
 
         this.storage = new NicknameStorage(dataFolder, config);
@@ -71,7 +74,7 @@ public class NicknameChanger extends JavaPlugin {
         try {
             LuckPermsHook.init(config.integrations.luckperms.enabled);
         } catch (NoClassDefFoundError e) {
-            System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
+            getLogger().at(Level.INFO).log("LuckPerms not found, running without it.");
         }
 
         // Eagerly detect external formatters so ChatListener knows from the first chat event
@@ -90,6 +93,10 @@ public class NicknameChanger extends JavaPlugin {
 
     public PluginConfig getConfig() {
         return config;
+    }
+
+    public Config<PluginConfig> getConfigHolder() {
+        return configHolder;
     }
 
     public Path getDataFolder() {

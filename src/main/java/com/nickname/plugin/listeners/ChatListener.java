@@ -152,7 +152,20 @@ public class ChatListener {
                 ? storage.getDisplayName(senderUuid, currentName) : currentName;
         final String safeName = displayName != null ? displayName : currentName;
 
+        // Save the old formatter to support decorator pattern (don't overwrite other plugins)
+        PlayerChatEvent.Formatter oldFormatter = event.getFormatter();
+        boolean hasExternalFormatter = oldFormatter != PlayerChatEvent.DEFAULT_FORMATTER;
+
         event.setFormatter((playerRef, message) -> {
+            // If another plugin set a formatter, delegate to it and apply NNC modifications on top
+            if (hasExternalFormatter) {
+                Message base = oldFormatter.format(playerRef, message);
+                // NNC can still apply message color by wrapping the message content
+                // but we respect the external formatter's structure (username, layout, etc.)
+                return base;
+            }
+
+            // Standalone mode — NNC formats from scratch
             Message result = Message.empty();
 
             for (ChatFormatParser.Token token : formatParser.getTokens()) {

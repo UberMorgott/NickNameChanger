@@ -109,9 +109,9 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
 
         // Set initial values
         commandBuilder.set("#NicknameInput.Value", currentNickname);
-        commandBuilder.set("#ColorPicker.Value", currentColor.isEmpty() ? "#FFFFFF" : currentColor);
-        commandBuilder.set("#GradColorPicker1.Value", gradColor1);
-        commandBuilder.set("#GradColorPicker2.Value", gradColor2);
+        commandBuilder.set("#ColorPicker.Value", toPickerValue(currentColor.isEmpty() ? "#FFFFFF" : currentColor));
+        commandBuilder.set("#GradColorPicker1.Value", toPickerValue(gradColor1));
+        commandBuilder.set("#GradColorPicker2.Value", toPickerValue(gradColor2));
         commandBuilder.set("#GradColor1Preview.Background", gradColor1);
         commandBuilder.set("#GradColor2Preview.Background", gradColor2);
 
@@ -121,7 +121,7 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", isUnderline);
 
         // Set message color picker
-        commandBuilder.set("#MsgColorPicker.Value", msgColor.isEmpty() ? "#FFFFFF" : msgColor);
+        commandBuilder.set("#MsgColorPicker.Value", toPickerValue(msgColor.isEmpty() ? "#FFFFFF" : msgColor));
 
         // Set tab states and visibility
         updateTabStyles(commandBuilder);
@@ -374,32 +374,32 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
             commandBuilder.set("#GradColor2Preview.Background", gradColor2);
         }
         if ("grad_preset".equals(data.action)) {
-            commandBuilder.set("#GradColorPicker1.Value", gradColor1);
-            commandBuilder.set("#GradColorPicker2.Value", gradColor2);
+            commandBuilder.set("#GradColorPicker1.Value", toPickerValue(gradColor1));
+            commandBuilder.set("#GradColorPicker2.Value", toPickerValue(gradColor2));
         }
 
         // Update single color picker when preset selected
         if ("color".equals(data.action) && !currentColor.isEmpty()) {
-            commandBuilder.set("#ColorPicker.Value", currentColor);
+            commandBuilder.set("#ColorPicker.Value", toPickerValue(currentColor));
         }
 
         // Update message color picker when preset selected
         if ("msg_color".equals(data.action) && !msgColor.isEmpty()) {
-            commandBuilder.set("#MsgColorPicker.Value", msgColor);
+            commandBuilder.set("#MsgColorPicker.Value", toPickerValue(msgColor));
         }
 
         // Reset all UI elements when reset button pressed
         if ("reset".equals(data.action)) {
             commandBuilder.set("#NicknameInput.Value", currentNickname);
-            commandBuilder.set("#ColorPicker.Value", "#FFFFFF");
-            commandBuilder.set("#GradColorPicker1.Value", gradColor1);
-            commandBuilder.set("#GradColorPicker2.Value", gradColor2);
+            commandBuilder.set("#ColorPicker.Value", toPickerValue("#FFFFFF"));
+            commandBuilder.set("#GradColorPicker1.Value", toPickerValue(gradColor1));
+            commandBuilder.set("#GradColorPicker2.Value", toPickerValue(gradColor2));
             commandBuilder.set("#GradColor1Preview.Background", gradColor1);
             commandBuilder.set("#GradColor2Preview.Background", gradColor2);
             commandBuilder.set("#BoldCheckbox #CheckBox.Value", false);
             commandBuilder.set("#ItalicCheckbox #CheckBox.Value", false);
             commandBuilder.set("#UnderlineCheckbox #CheckBox.Value", false);
-            commandBuilder.set("#MsgColorPicker.Value", msgColor.isEmpty() ? "#FFFFFF" : msgColor);
+            commandBuilder.set("#MsgColorPicker.Value", toPickerValue(msgColor.isEmpty() ? "#FFFFFF" : msgColor));
         }
 
         sendUpdate(commandBuilder);
@@ -409,6 +409,20 @@ public class NicknameEditorPage extends InteractiveCustomUIPage<NicknameEditorPa
         if (color == null || color.isEmpty()) return false;
         // Support 6 or 8 character hex (with or without alpha)
         return color.matches("^#?[0-9A-Fa-f]{6,8}$");
+    }
+
+    /**
+     * Convert a 6-char hex color (#RRGGBB) to 8-char ColorPicker format (#RRGGBBVV).
+     * The ColorPicker uses an inverted brightness byte: 0x00 = full brightness, 0xFF = black.
+     * Appending "00" ensures the brightness slider is at max when setting a preset color.
+     */
+    private String toPickerValue(String hexColor) {
+        if (hexColor == null || hexColor.isEmpty()) return hexColor;
+        // Only append brightness byte if it's a standard 6-char hex (7 with #)
+        if (hexColor.length() == 7 && hexColor.startsWith("#")) {
+            return hexColor + "00";
+        }
+        return hexColor;
     }
 
     private String normalizeHexColor(String color) {

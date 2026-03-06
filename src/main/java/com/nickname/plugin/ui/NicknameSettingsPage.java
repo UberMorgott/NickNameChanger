@@ -88,7 +88,7 @@ public class NicknameSettingsPage extends InteractiveCustomUIPage<NicknameSettin
                     config.display.showInChat = showInChat;
                     config.display.showOnNameplate = showOnNameplate;
                     config.display.showInTabList = showInTabList;
-                    config.save(NicknameChanger.getInstance().getDataFolder());
+                    NicknameChanger.getInstance().getConfigHolder().save();
 
                     applyToAllPlayers();
 

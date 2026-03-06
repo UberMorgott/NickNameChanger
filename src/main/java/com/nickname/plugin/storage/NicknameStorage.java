@@ -8,6 +8,8 @@ import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import com.hypixel.hytale.logger.HytaleLogger;
+import java.util.logging.Level;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -18,6 +20,7 @@ import java.lang.reflect.Type;
  */
 public class NicknameStorage {
 
+    private static final HytaleLogger LOGGER = HytaleLogger.get("NicknameChanger");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Map<UUID, String> nicknames = new HashMap<>();
     private final Map<UUID, String> originalUsernames = new HashMap<>();
@@ -143,9 +146,9 @@ public class NicknameStorage {
                 }
             }
         } catch (IOException e) {
-            System.err.println("[NicknameChanger] Failed to load " + file.getFileName() + ": " + e.getMessage());
+            LOGGER.at(Level.SEVERE).withCause(e).log("Failed to load %s", file.getFileName());
         } catch (Exception e) {
-            System.err.println("[NicknameChanger] Corrupted data in " + file.getFileName() + ": " + e.getMessage());
+            LOGGER.at(Level.SEVERE).withCause(e).log("Corrupted data in %s", file.getFileName());
             // Don't crash — start with empty data, file will be overwritten on next save
         }
     }
@@ -167,7 +170,7 @@ public class NicknameStorage {
                 Files.move(tmpFile, file, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
-            System.err.println("[NicknameChanger] Failed to save " + file.getFileName() + ": " + e.getMessage());
+            LOGGER.at(Level.SEVERE).withCause(e).log("Failed to save %s", file.getFileName());
         }
     }
 

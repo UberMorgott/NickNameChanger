@@ -3,12 +3,17 @@ package com.nickname.plugin.compat;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
 
+import com.hypixel.hytale.logger.HytaleLogger;
+import java.util.logging.Level;
+
 /**
  * Detects mini-chat-formatter (MCF) by lucko.
  * When MCF is active, NNC defers LP prefix/suffix formatting to MCF
  * and only overrides the formatter for actual NNC features (nicknames, message colors).
  */
 public class MiniChatFormatterCompat {
+
+    private static final HytaleLogger LOGGER = HytaleLogger.get("NicknameChanger");
 
     private volatile boolean checked = false;
     private volatile boolean available = false;
@@ -21,7 +26,7 @@ public class MiniChatFormatterCompat {
             PluginManager pm = PluginManager.get();
             available = pm != null && pm.getPlugin(new PluginIdentifier("lucko", "MiniChatFormatter")) != null;
             if (available) {
-                System.out.println("[NicknameChanger] mini-chat-formatter detected, enabling compatibility mode.");
+                LOGGER.at(Level.INFO).log("mini-chat-formatter detected, enabling compatibility mode.");
             }
             checked = true;
         }

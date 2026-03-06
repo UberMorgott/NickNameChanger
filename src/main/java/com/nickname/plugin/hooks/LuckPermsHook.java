@@ -5,6 +5,8 @@ import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
+import com.hypixel.hytale.logger.HytaleLogger;
+import java.util.logging.Level;
 
 /**
  * Safe facade for optional LuckPerms integration.
@@ -12,6 +14,8 @@ import java.util.UUID;
  * which the JVM only loads when LuckPerms is actually present.
  */
 public class LuckPermsHook {
+
+    private static final HytaleLogger LOGGER = HytaleLogger.get("NicknameChanger");
 
     private static volatile boolean initialized = false;
     private static volatile boolean available = false;
@@ -22,7 +26,7 @@ public class LuckPermsHook {
         if (!enabled) {
             initialized = true;
             available = false;
-            System.out.println("[NicknameChanger] LuckPerms integration disabled in config.");
+            LOGGER.at(Level.INFO).log("LuckPerms integration disabled in config.");
             return;
         }
         tryInit();
@@ -41,14 +45,14 @@ public class LuckPermsHook {
             boolean wasUnavailable = !available;
             available = true;
             if (!initialized) {
-                System.out.println("[NicknameChanger] LuckPerms integration enabled!");
+                LOGGER.at(Level.INFO).log("LuckPerms integration enabled!");
                 initialized = true;
             } else if (wasUnavailable) {
-                System.out.println("[NicknameChanger] LuckPerms integration enabled (late binding)!");
+                LOGGER.at(Level.INFO).log("LuckPerms integration enabled (late binding)!");
             }
         } catch (IllegalStateException | NoClassDefFoundError e) {
             if (!initialized) {
-                System.out.println("[NicknameChanger] LuckPerms not found, running without it.");
+                LOGGER.at(Level.INFO).log("LuckPerms not found, running without it.");
                 initialized = true;
             }
             available = false;
@@ -63,7 +67,7 @@ public class LuckPermsHook {
     private static void disableHook(Throwable e) {
         if (available) {
             available = false;
-            System.out.println("[NicknameChanger] LuckPerms became unavailable, disabling integration: " + e.getMessage());
+            LOGGER.at(Level.WARNING).log("LuckPerms became unavailable, disabling integration: %s", e.getMessage());
         }
     }
 
